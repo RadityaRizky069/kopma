@@ -170,6 +170,161 @@
     font-weight: 500;
     color: var(--text);
 }
+/* AUTH PAGE */
+.auth-wrapper {
+    min-height: calc(100vh - 80px);
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+}
+
+/* ===== AUTH LEFT (IMPROVED ONLY) ===== */
+.auth-left {
+    position: relative;
+    background: linear-gradient(145deg, #15803D, #22C55E);
+    color: white;
+    padding: 96px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* dekorasi halus */
+.auth-left::before {
+    content: '';
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    background: rgba(255,255,255,.08);
+    border-radius: 50%;
+    top: -120px;
+    left: -120px;
+}
+
+.auth-left::after {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    background: rgba(255,255,255,.06);
+    border-radius: 50%;
+    bottom: -160px;
+    right: -160px;
+}
+
+/* biar teks nyaman dibaca */
+.auth-left h1 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.auth-left p {
+    font-size: 17px;
+    line-height: 1.7;
+    opacity: .92;
+    max-width: 420px;
+}
+
+
+.auth-right {
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.auth-card {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.08);
+}
+
+.auth-card h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.auth-card p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-group input {
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+/* ===== AUTH ANIMATION ===== */
+@keyframes fadeSlideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* apply animation */
+.auth-left {
+    animation: fadeSlideLeft .8s ease forwards;
+}
+
+.auth-card {
+    animation: fadeSlideUp .8s ease forwards;
+    animation-delay: .15s;
+    opacity: 0;
+}
+/* ===== REMOVE FOOTER GAP ON AUTH PAGE ONLY ===== */
+main:has(.auth-wrapper) + footer {
+    margin-top: 0;
+}
+
+
+
 
     </style>
 </head>
