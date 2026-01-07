@@ -4,44 +4,73 @@
 
 @section('content')
 
-<!-- REGISTER FORM -->
-<section style="padding:60px 0; max-width:400px; margin:auto;">
-    <h1 style="font-size:28px; font-weight:700; margin-bottom:16px; text-align:center;">
-        Daftar Akun KOPMA
-    </h1>
+<section class="auth-wrapper">
 
-    @if ($errors->any())
-        <div style="color:red; margin-bottom:12px; text-align:center;">
-            <ul style="padding-left:0; list-style:none;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+    <!-- LEFT -->
+    <div class="auth-left">
+        <h1>
+            Gabung Bersama  
+            <br>KOPMA 🚀
+        </h1>
+
+        <p>
+            Daftarkan akunmu dan nikmati kemudahan
+            belanja di koperasi mahasiswa yang lebih
+            modern, cepat, dan transparan.
+        </p>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="auth-right">
+        <div class="auth-card">
+
+            <h2>Daftar Akun</h2>
+            <p>Buat akun baru untuk mulai menggunakan KOPMA</p>
+
+            @if ($errors->any())
+                <div style="color:red; font-size:14px; margin-bottom:12px;">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form action="{{ route('register') }}" method="POST" style="display:flex; flex-direction:column; gap:16px;">
+                @csrf
+
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="name" placeholder="Nama lengkap" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="email@kampus.ac.id" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Konfirmasi Password</label>
+                    <input type="password" name="password_confirmation" placeholder="••••••••" required>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top:6px;">
+                    Daftar
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Sudah punya akun?
+                <a href="{{ route('login') }}" style="color:var(--primary); font-weight:600;">
+                    Login
+                </a>
+            </div>
+
         </div>
-    @endif
+    </div>
 
-    <form action="{{ route('register') }}" method="POST" style="display:flex; flex-direction:column; gap:12px;">
-        @csrf
+</section>
 
-        <div>
-            <label for="name" style="font-weight:600;">Nama</label>
-            <input type="text" name="name" id="name" required
-                   style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-        </div>
-
-        <div>
-            <label for="email" style="font-weight:600;">Email</label>
-            <input type="email" name="email" id="email" required
-                   style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-        </div>
-
-        <div>
-            <label for="password" style="font-weight:600;">Password</label>
-            <input type="password" name="password" id="password" required
-                   style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-        </div>
-
-        <div>
-            <label for="password_confirmation" style="font-weight:600;">Konfirmasi Password</label>
-            <input type="password" name="password_confirmation" id="password_confirmation" required
-                   style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px
+@endsection
