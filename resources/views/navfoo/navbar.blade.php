@@ -1,23 +1,26 @@
-<nav style="
-    background:#FFFFFF;
-    border-bottom:1px solid #E5E7EB;
-">
-    <div class="container" style="
-        height:64px;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-    ">
-        <div style="font-weight:600; font-size:18px;">
-            KOPMA
+<nav class="navbar">
+    <div class="container navbar-inner">
+
+        <!-- BRAND -->
+        <div class="navbar-brand">
+            <div class="brand-logo">K</div>
+            <span class="brand-text">KOPMA</span>
         </div>
 
-        <div style="display:flex; gap:16px; align-items:center;">
-            <a href="{{ route('login') }}" class="text-muted">Login</a>
-            <a href="{{ route('register') }}" class="btn-primary">Register</a>
+        <!-- MENU (bisa ditambah nanti) -->
+        <div class="navbar-menu">
+            <a href="#" class="nav-link active">Beranda</a>
+            <a href="#" class="nav-link">Produk</a>
+            <a href="#" class="nav-link">Tentang</a>
         </div>
+
+        <!-- ACTION -->
+        <div class="navbar-action">
+            <a href="{{ route('login') }}" class="nav-login">Login</a>
+            <a href="{{ route('register') }}" class="btn btn-primary">
+                Daftar
+            </a>
+        </div>
+
     </div>
-
-    <!-- accent strip -->
-    <div style="height:3px; background:#16A34A;"></div>
 </nav>
