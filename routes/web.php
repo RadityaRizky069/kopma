@@ -28,9 +28,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ===================== ADMIN =====================
-Route::middleware(['auth','role:admin'])->prefix('admin')->group(function() {
+Route::middleware(['auth','role:admin'])
+    ->prefix('admin')
+    ->as('admin.')
+    ->group(function() {
+
     // Dashboard
-    Route::get('/', [AdminController::class,'dashboard'])->name('admin.dashboard');
+    Route::get('/', [AdminController::class,'dashboard'])->name('dashboard');
 
     // Produk
     Route::resource('products', ProductController::class);
@@ -39,18 +43,20 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function() {
     Route::resource('categories', CategoryController::class);
 
     // Customer
-    Route::get('customers', [AdminController::class,'customers'])->name('admin.customers');
+    Route::get('customers', [AdminController::class,'customers'])->name('customers');
 
     // Transaksi
-    Route::get('transactions', [TransactionController::class,'index'])->name('admin.transactions');
-    Route::post('transactions/{id}/update-status', [TransactionController::class,'updateStatus'])->name('admin.transactions.updateStatus');
+    Route::get('transactions', [TransactionController::class,'index'])->name('transactions');
+    Route::post('transactions/{id}/update-status', [TransactionController::class,'updateStatus'])
+        ->name('transactions.updateStatus');
 
     // Laporan
-    Route::get('reports', [AdminController::class,'reports'])->name('admin.reports');
+    Route::get('reports', [AdminController::class,'reports'])->name('reports');
 });
 
 // ===================== CUSTOMER =====================
 Route::middleware(['auth','role:customer'])->group(function() {
+
     // Produk
     Route::get('products', [ProductController::class,'index'])->name('products.index');
     Route::get('products/{id}', [ProductController::class,'show'])->name('products.show');
@@ -63,5 +69,6 @@ Route::middleware(['auth','role:customer'])->group(function() {
     Route::post('checkout', [TransactionController::class,'checkout'])->name('checkout');
 
     // Riwayat transaksi
-    Route::get('transactions', [TransactionController::class,'customerTransactions'])->name('customer.transactions');
+    Route::get('transactions', [TransactionController::class,'customerTransactions'])
+        ->name('customer.transactions');
 });

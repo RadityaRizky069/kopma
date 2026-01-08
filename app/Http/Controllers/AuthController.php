@@ -31,7 +31,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'customer', // DEFAULT
+            'role' => 'customer',
         ]);
 
         return redirect()->route('login')
@@ -48,11 +48,9 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            if (auth()->user()->role === 'admin') {
-                return redirect('/admin');
-            }
-
-            return redirect('/checkout');
+            return auth()->user()->role === 'admin'
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('products.index');
         }
 
         return back()->with('error', 'Email atau password salah');

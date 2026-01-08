@@ -8,21 +8,27 @@ use App\Models\Category;
 
 class ProductController extends Controller
 {
-    // Tampilkan semua produk (admin & customer)
+    // ADMIN & CUSTOMER (beda view)
     public function index()
     {
-        $products = Product::all();
-        return view('products.index', compact('products'));
+        $products = Product::latest()->get();
+
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            return view('admin.products.index', compact('products'));
+        }
+
+        return view('customer.products', compact('products'));
     }
 
-    // Detail produk (customer)
+    // CUSTOMER - detail produk
     public function show($id)
     {
         $product = Product::findOrFail($id);
-        return view('products.show', compact('product'));
+        return view('customer.product-detail', compact('product'));
     }
 
-    // Admin CRUD
+    // ================= ADMIN CRUD =================
+
     public function create()
     {
         $categories = Category::all();
@@ -32,20 +38,23 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required',
-            'price'=>'required|numeric',
-            'stock'=>'required|integer',
-            'category_id'=>'required'
+            'name' => 'required',
+            'price' => 'required|numeric',
+            'stock' => 'required|integer',
+            'category_id' => 'required',
         ]);
 
         Product::create($request->all());
-        return redirect()->route('products.index')->with('success','Produk berhasil ditambahkan');
+
+        return redirect()->route('products.index')
+            ->with('success', 'Produk berhasil ditambahkan');
     }
 
     public function edit($id)
     {
         $product = Product::findOrFail($id);
         $categories = Category::all();
+
         return view('admin.products.edit', compact('product','categories'));
     }
 
@@ -53,12 +62,16 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->update($request->all());
-        return redirect()->route('products.index')->with('success','Produk berhasil diupdate');
+
+        return redirect()->route('products.index')
+            ->with('success', 'Produk berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         Product::findOrFail($id)->delete();
-        return redirect()->route('products.index')->with('success','Produk berhasil dihapus');
+
+        return redirect()->route('products.index')
+            ->with('success', 'Produk berhasil dihapus');
     }
 }
