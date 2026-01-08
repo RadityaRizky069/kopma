@@ -5,7 +5,6 @@
 @section('content')
 
 <!-- HERO -->
-<<<<<<< HEAD
 <section class="py-5 text-center text-white" style="background: linear-gradient(90deg, #16A34A, #10B981);">
     <div class="container">
         <h1 class="fw-bold mb-3" style="font-size:36px;">Selamat Datang di KOPMA</h1>
@@ -20,7 +19,6 @@
         <div class="input-group">
             <input type="text" class="form-control" placeholder="Cari produk..." aria-label="Cari produk">
             <button class="btn btn-primary" type="button">Cari</button>
-=======
 <section class="container" style="margin-top:80px;">
     <div style="
         display:grid;
@@ -116,7 +114,6 @@
             <button class="btn btn-primary" style="width:100%;">
                 Tambah ke Keranjang
             </button>
->>>>>>> 749f11b9f7ee490bbdeb63af9a18219aa2fd9b10
         </div>
     </div>
 </section>
