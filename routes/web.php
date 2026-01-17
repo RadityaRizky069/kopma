@@ -34,13 +34,19 @@ Route::middleware(['auth','role:admin'])
 
         Route::get('customers', [AdminController::class,'customers'])->name('customers');
 
+        // --- Transaksi ---
         Route::get('transactions', [TransactionController::class,'index'])->name('transactions');
         Route::post(
             'transactions/{id}/update-status',
             [TransactionController::class,'updateStatus']
         )->name('transactions.updateStatus');
 
+        // --- Laporan ---
+        // 1. Halaman Laporan (View)
         Route::get('reports', [AdminController::class,'reports'])->name('reports');
+        
+        // 2. Download Excel (Baru Ditambahkan)
+        Route::get('reports/export', [AdminController::class, 'exportReports'])->name('reports.export');
 });
 
 /* ================= CUSTOMER - PUBLIK (BISA DILIHAT TAMU) ================= */
