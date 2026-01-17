@@ -6,6 +6,7 @@
     <title>@yield('title', 'KOPMA')</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -85,247 +86,238 @@
             border-top: 1px solid var(--border);
         }
         /* NAVBAR */
-.navbar {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: rgba(255,255,255,.85);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-}
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
 
-.navbar-inner {
-    height: 80px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-}
+        .navbar-inner {
+            height: 80px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+        }
 
-.navbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 800;
-    font-size: 20px;
-}
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 20px;
+        }
 
-.brand-logo {
-    width: 40px;
-    height: 40px;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    font-weight: 800;
-}
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 800;
+        }
 
-.brand-text {
-    letter-spacing: .5px;
-}
+        .brand-text {
+            letter-spacing: .5px;
+        }
 
-.navbar-menu {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-}
+        .navbar-menu {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+        }
 
-.nav-link {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--muted);
-    position: relative;
-    padding: 6px 0;
-    transition: .2s ease;
-}
+        .nav-link {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            position: relative;
+            padding: 6px 0;
+            transition: .2s ease;
+        }
 
-.nav-link:hover {
-    color: var(--text);
-}
+        .nav-link:hover {
+            color: var(--text);
+        }
 
-.nav-link.active {
-    color: var(--text);
-}
+        .nav-link.active {
+            color: var(--text);
+        }
 
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -10px;
-    width: 100%;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 999px;
-}
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 999px;
+        }
 
-.navbar-action {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
+        .navbar-action {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-.nav-login {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-}
-/* AUTH PAGE */
-.auth-wrapper {
-    min-height: calc(100vh - 80px);
-    display: grid;
-    grid-template-columns: 1.1fr .9fr;
-}
+        .nav-login {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        /* AUTH PAGE */
+        .auth-wrapper {
+            min-height: calc(100vh - 80px);
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+        }
 
-/* ===== AUTH LEFT (IMPROVED ONLY) ===== */
-.auth-left {
-    position: relative;
-    background: linear-gradient(145deg, #15803D, #22C55E);
-    color: white;
-    padding: 96px 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-}
+        .auth-left {
+            position: relative;
+            background: linear-gradient(145deg, #15803D, #22C55E);
+            color: white;
+            padding: 96px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-/* dekorasi halus */
-.auth-left::before {
-    content: '';
-    position: absolute;
-    width: 320px;
-    height: 320px;
-    background: rgba(255,255,255,.08);
-    border-radius: 50%;
-    top: -120px;
-    left: -120px;
-}
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: rgba(255,255,255,.08);
+            border-radius: 50%;
+            top: -120px;
+            left: -120px;
+        }
 
-.auth-left::after {
-    content: '';
-    position: absolute;
-    width: 420px;
-    height: 420px;
-    background: rgba(255,255,255,.06);
-    border-radius: 50%;
-    bottom: -160px;
-    right: -160px;
-}
+        .auth-left::after {
+            content: '';
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            background: rgba(255,255,255,.06);
+            border-radius: 50%;
+            bottom: -160px;
+            right: -160px;
+        }
 
-/* biar teks nyaman dibaca */
-.auth-left h1 {
-    font-size: 44px;
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
+        .auth-left h1 {
+            font-size: 44px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
 
-.auth-left p {
-    font-size: 17px;
-    line-height: 1.7;
-    opacity: .92;
-    max-width: 420px;
-}
+        .auth-left p {
+            font-size: 17px;
+            line-height: 1.7;
+            opacity: .92;
+            max-width: 420px;
+        }
 
 
-.auth-right {
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-}
+        .auth-right {
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
 
-.auth-card {
-    background: white;
-    width: 100%;
-    max-width: 420px;
-    padding: 40px;
-    border-radius: 24px;
-    box-shadow: 0 30px 60px rgba(0,0,0,.08);
-}
+        .auth-card {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,.08);
+        }
 
-.auth-card h2 {
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
+        .auth-card h2 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
 
-.auth-card p {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 24px;
-}
+        .auth-card p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-.form-group label {
-    font-size: 13px;
-    font-weight: 600;
-}
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+        }
 
-.form-group input {
-    padding: 14px;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    font-size: 14px;
-}
+        .form-group input {
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
 
-.form-group input:focus {
-    outline: none;
-    border-color: var(--primary);
-}
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
 
-.auth-footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
-}
-/* ===== AUTH ANIMATION ===== */
-@keyframes fadeSlideLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        @keyframes fadeSlideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-@keyframes fadeSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-/* apply animation */
-.auth-left {
-    animation: fadeSlideLeft .8s ease forwards;
-}
+        .auth-left {
+            animation: fadeSlideLeft .8s ease forwards;
+        }
 
-.auth-card {
-    animation: fadeSlideUp .8s ease forwards;
-    animation-delay: .15s;
-    opacity: 0;
-}
-/* ===== REMOVE FOOTER GAP ON AUTH PAGE ONLY ===== */
-main:has(.auth-wrapper) + footer {
-    margin-top: 0;
-}
+        .auth-card {
+            animation: fadeSlideUp .8s ease forwards;
+            animation-delay: .15s;
+            opacity: 0;
+        }
 
-
-
-
+        main:has(.auth-wrapper) + footer {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -337,6 +329,36 @@ main:has(.auth-wrapper) + footer {
 </main>
 
 @include('navfoo.footer')
+
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 3000
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#15803D'
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            icon: 'warning',
+            title: 'Perhatian',
+            text: "{{ $errors->first() }}",
+            confirmButtonColor: '#15803D'
+        });
+    @endif
+</script>
 
 </body>
 </html>

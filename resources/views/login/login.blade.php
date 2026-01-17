@@ -6,7 +6,6 @@
 
 <section class="auth-wrapper">
 
-    <!-- LEFT -->
     <div class="auth-left">
         <h1>
             Selamat Datang  
@@ -20,18 +19,11 @@
         </p>
     </div>
 
-    <!-- RIGHT -->
     <div class="auth-right">
         <div class="auth-card">
 
             <h2>Login KOPMA</h2>
             <p>Masuk menggunakan akun terdaftar</p>
-
-            @if(session('error'))
-                <div style="color:red; font-size:14px; margin-bottom:12px;">
-                    {{ session('error') }}
-                </div>
-            @endif
 
             <form action="{{ route('login') }}" method="POST" style="display:flex; flex-direction:column; gap:18px;">
                 @csrf
@@ -46,7 +38,7 @@
                     <input type="password" name="password" placeholder="••••••••" required>
                 </div>
 
-                <button class="btn btn-primary">
+                <button type="submit" class="btn btn-primary">
                     Masuk
                 </button>
             </form>

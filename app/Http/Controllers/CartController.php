@@ -11,6 +11,7 @@ class CartController extends Controller
 {
     public function index()
     {
+        // Pastikan relasi 'product' ada di Model Cart
         $cartItems = Cart::where('user_id', Auth::id())->with('product')->get();
         return view('customer.cart', compact('cartItems'));
     }
@@ -19,13 +20,20 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $cart = Cart::firstOrCreate([
-            'user_id'=>Auth::id(),
-            'product_id'=>$product->id
-        ]);
+        // PERBAIKAN DI SINI: Sesuaikan dengan kolom database kamu
+        $cart = Cart::firstOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'produk_id' => $product->id  // Database kamu pakai 'produk_id'
+            ],
+            [
+                'jumlah' => 0 // Inisialisasi jumlah awal jika baru dibuat
+            ]
+        );
 
-        $cart->increment('quantity');
+        // Tambah jumlahnya (database kamu pakai kolom 'jumlah')
+        $cart->increment('jumlah');
 
-        return redirect()->back()->with('success','Produk ditambahkan ke keranjang');
+        return redirect()->back()->with('success', 'Produk berhasil masuk keranjang!');
     }
 }
