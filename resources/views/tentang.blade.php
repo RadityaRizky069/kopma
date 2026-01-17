@@ -230,6 +230,7 @@
     <div class="container">
         <div class="quote-box">
             <p class="quote-text">"Koperasi adalah soko guru perekonomian Indonesia, dan mahasiswa adalah agen perubahannya."</p>
+            <div style="font-weight: 700; color: var(--primary);">Radit Femboy</div>
             <div style="font-weight: 700; color: var(--primary);">Ketua KOPMA</div>
         </div>
     </div>
