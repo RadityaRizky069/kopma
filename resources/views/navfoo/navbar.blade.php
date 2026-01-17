@@ -9,35 +9,40 @@
             <span style="font-weight: 800; font-size: 26px; color: #1e293b; letter-spacing: -1px;">KOPMA</span>
         </a>
 
-        {{-- MENU TENGAH (Hanya Text Link) --}}
+        {{-- MENU TENGAH (Riwayat SUDAH DIHAPUS dari sini) --}}
         <div style="display: flex; align-items: center; gap: 35px;">
             <a href="/" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Beranda</a>
             
             @if(auth()->check() && auth()->user()->role == 'admin')
                 <a href="{{ route('admin.dashboard') }}" style="text-decoration: none; color: #28a745; font-weight: 700; font-size: 16px;">Dashboard Admin</a>
             @else
-                <a href="/products" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Produk</a>
+                <a href="{{ route('products.index') }}" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Produk</a>
             @endif
             
             <a href="/tentang" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Tentang</a>
         </div>
 
-        {{-- BAGIAN KANAN (ICON GROUP & USER) --}}
+        {{-- BAGIAN KANAN (Ikon Dark Mode, History, Cart) --}}
         <div style="display: flex; align-items: center; gap: 25px;">
             
-            {{-- 1. IKON RIWAYAT (BARU) - Hanya untuk Customer --}}
+            {{-- 1. TOMBOL DARK MODE (Bulan/Matahari) --}}
+            <button onclick="toggleTheme()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #64748b; transition: 0.3s;" title="Ganti Mode Gelap/Terang"
+                    onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+
+            {{-- 2. IKON RIWAYAT PESANAN (Dipindah ke Sini) --}}
             @if(auth()->check() && auth()->user()->role == 'customer')
                 <a href="{{ route('customer.transactions') }}" 
                    style="text-decoration: none; color: #1e293b; transition: 0.3s; display: flex; align-items: center;" 
                    onmouseover="this.style.color='#28a745'" 
                    onmouseout="this.style.color='#1e293b'"
                    title="Riwayat Pesanan">
-                    {{-- Icon Jam/History --}}
                     <i class="fa-solid fa-clock-rotate-left" style="font-size: 22px;"></i>
                 </a>
             @endif
-
-            {{-- 2. IKON KERANJANG --}}
+            
+            {{-- 3. IKON KERANJANG --}}
             @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
                 <a href="/cart" style="text-decoration: none; position: relative; color: #1e293b; transition: 0.3s; display: flex; align-items: center;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#1e293b'">
                     <i class="fa-solid fa-cart-shopping" style="font-size: 24px;"></i>
@@ -50,7 +55,7 @@
                 <div style="width: 1.5px; height: 30px; background: #e2e8f0;"></div>
             @endif
 
-            {{-- 3. USER PROFILE / LOGIN --}}
+            {{-- 4. USER PROFILE / LOGOUT --}}
             @auth
                 <div style="display: flex; align-items: center; gap: 18px;">
                     <div style="text-align: right; line-height: 1.3;">

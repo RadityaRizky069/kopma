@@ -13,9 +13,9 @@ class AdminController extends Controller
     // ================= DASHBOARD =================
     public function dashboard()
     {
-        $totalProducts  = Schema::hasTable('produk') ? DB::table('produk')->count() : 0;
-        $totalCustomers = User::where('role', 'customer')->count();
-        $totalTransactions = Schema::hasTable('transaksi') ? DB::table('transaksi')->count() : 0;
+        $totalProducts      = Schema::hasTable('produk') ? DB::table('produk')->count() : 0;
+        $totalCustomers     = User::where('role', 'customer')->count();
+        $totalTransactions  = Schema::hasTable('transaksi') ? DB::table('transaksi')->count() : 0;
 
         return view('admin.dashboard', compact(
             'totalProducts',
@@ -61,7 +61,6 @@ class AdminController extends Controller
                     'transaksi.total_price'
                 )
                 // Group By untuk menghindari duplikat jika 1 transaksi ada banyak barang
-                // (Opsional, tapi aman dipakai)
                 ->groupBy('transaksi.id') 
                 ->orderBy('transaksi.created_at', 'desc');
 
