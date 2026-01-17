@@ -9,20 +9,20 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    // Tambahan Fungsi untuk Landing Page Utama
+    /* ================= HOME ================= */
     public function home()
     {
-        // Mengambil produk terbaru untuk ditampilkan di home.blade.php
-        $products = Product::latest()->get(); 
+        $products = Product::latest()->get();
         return view('home', compact('products'));
     }
 
+    /* ================= INDEX ================= */
     public function index()
     {
         $products = Product::latest()->get();
 
         // ADMIN view
-        if(auth()->check() && auth()->user()->role === 'admin'){
+        if (auth()->check() && auth()->user()->role === 'admin') {
             return view('admin.products.index', compact('products'));
         }
 
@@ -30,25 +30,31 @@ class ProductController extends Controller
         return view('customer.products', compact('products'));
     }
 
+    /* ================= CREATE ================= */
     public function create()
     {
         $categories = Category::all();
         return view('admin.products.create', compact('categories'));
     }
 
+    /* ================= STORE (KATEGORI BEBAS) ================= */
     public function store(Request $request)
     {
         $request->validate([
-            'nama_produk' => 'required',
+            'nama_produk' => 'required|string',
             'harga'       => 'required|numeric',
             'stok'        => 'required|integer',
-            'kategori_id' => 'required',
+            'kategori'    => 'required|string',
             'gambar'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        // ✅ Cari kategori berdasarkan NAMA, kalau belum ada → buat baru
+        $category = Category::firstOrCreate([
+            'nama_kategori' => $request->kategori
         ]);
 
         $path = null;
         if ($request->hasFile('gambar')) {
-            // Menyimpan file gambar ke storage/app/public/products
             $path = $request->file('gambar')->store('products', 'public');
         }
 
@@ -57,36 +63,46 @@ class ProductController extends Controller
             'deskripsi'   => $request->deskripsi,
             'harga'       => $request->harga,
             'stok'        => $request->stok,
-            'kategori_id' => $request->kategori_id,
+            'kategori_id' => $category->id,
             'gambar'      => $path
         ]);
 
         return redirect()->route('admin.products.index')
-               ->with('success','Produk berhasil ditambahkan');
+            ->with('success', 'Produk berhasil ditambahkan');
     }
 
+    /* ================= EDIT ================= */
     public function edit($id)
     {
         $product = Product::findOrFail($id);
         $categories = Category::all();
-        return view('admin.products.edit', compact('product','categories'));
+
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
+    /* ================= UPDATE (KATEGORI BEBAS) ================= */
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
 
         $request->validate([
-            'nama_produk' => 'required',
+            'nama_produk' => 'required|string',
             'harga'       => 'required|numeric',
             'stok'        => 'required|integer',
+            'kategori'    => 'required|string',
             'gambar'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        // ✅ Cari / buat kategori berdasarkan NAMA
+        $category = Category::firstOrCreate([
+            'nama_kategori' => $request->kategori
         ]);
 
         $path = $product->gambar;
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada file baru yang diunggah
-            if ($path) { Storage::disk('public')->delete($path); }
+            if ($path) {
+                Storage::disk('public')->delete($path);
+            }
             $path = $request->file('gambar')->store('products', 'public');
         }
 
@@ -95,29 +111,30 @@ class ProductController extends Controller
             'deskripsi'   => $request->deskripsi,
             'harga'       => $request->harga,
             'stok'        => $request->stok,
-            'kategori_id' => $request->kategori_id,
+            'kategori_id' => $category->id,
             'gambar'      => $path
         ]);
 
         return redirect()->route('admin.products.index')
-               ->with('success','Produk berhasil diperbarui');
+            ->with('success', 'Produk berhasil diperbarui');
     }
 
+    /* ================= DELETE ================= */
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        
-        // Hapus file fisik gambar dari storage
-        if ($product->gambar) { 
-            Storage::disk('public')->delete($product->gambar); 
+
+        if ($product->gambar) {
+            Storage::disk('public')->delete($product->gambar);
         }
-        
+
         $product->delete();
 
         return redirect()->route('admin.products.index')
-               ->with('success','Produk berhasil dihapus');
+            ->with('success', 'Produk berhasil dihapus');
     }
 
+    /* ================= DETAIL ================= */
     public function show($id)
     {
         $product = Product::findOrFail($id);
