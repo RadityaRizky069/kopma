@@ -39,12 +39,12 @@ class AuthController extends Controller
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            'password' => Hash::make($request->password), // ✅ HASH
+            'password' => Hash::make($request->password),
             'role'     => 'customer',
         ]);
 
         return redirect()->route('login')
-            ->with('success', 'Registrasi berhasil, silakan login');
+            ->with('success', 'Registrasi berhasil, silakan login sekarang');
     }
 
     // =====================
@@ -67,10 +67,10 @@ class AuthController extends Controller
 
         // Redirect sesuai role
         if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.dashboard')->with('success', 'Selamat datang Admin!');
         }
 
-        return redirect()->route('products.index');
+        return redirect()->route('products.index')->with('success', 'Berhasil masuk! Selamat belanja.');
     }
 
     // =====================
@@ -83,6 +83,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Berhasil keluar sistem');
     }
 }
