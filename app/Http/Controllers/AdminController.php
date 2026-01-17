@@ -39,24 +39,16 @@ class AdminController extends Controller
     }
 
     // ================= LAPORAN =================
-    public function reports(Request $request)
+    public function reports()
     {
-        $type = $request->input('type','daily');
+        // Mengambil data transaksi yang statusnya 'selesai', dikelompokkan per bulan
+        $laporan = Transaction::where('status', 'selesai')
+            ->selectRaw('YEAR(created_at) as tahun, MONTH(created_at) as bulan, SUM(total_harga) as omzet, COUNT(*) as total_transaksi')
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun', 'desc')
+            ->orderBy('bulan', 'desc')
+            ->get();
 
-        if (!Schema::hasTable('transaksi')) {
-            $transactions = collect();
-        } else {
-            if($type == 'daily'){
-                $transactions = DB::table('transaksi')
-                    ->whereDate('created_at', date('Y-m-d'))
-                    ->get();
-            } else {
-                $transactions = DB::table('transaksi')
-                    ->whereMonth('created_at', date('m'))
-                    ->get();
-            }
-        }
-
-        return view('admin.reports', compact('transactions','type'));
+        return view('admin.reports', compact('laporan'));
     }
 }
