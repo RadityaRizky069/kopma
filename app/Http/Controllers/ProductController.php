@@ -11,12 +11,11 @@ class ProductController extends Controller
 {
     // Tambahan Fungsi untuk Landing Page Utama
     public function home()
-{
-    // Mengambil 8 produk terbaru untuk ditampilkan di home
-    $products = Product::latest()->take(8)->get();
-    
-    return view('home', compact('products'));
-}
+    {
+        // Mengambil produk terbaru untuk ditampilkan di home.blade.php
+        $products = Product::latest()->get(); 
+        return view('home', compact('products'));
+    }
 
     public function index()
     {
