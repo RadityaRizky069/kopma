@@ -5,57 +5,81 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    // =====================
+    // FORM LOGIN
+    // =====================
     public function showLogin()
     {
         return view('login.login');
     }
 
+    // =====================
+    // FORM REGISTER
+    // =====================
     public function showRegister()
     {
         return view('login.register');
     }
 
+    // =====================
+    // REGISTER CUSTOMER
+    // =====================
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|email|unique:users',
+            'password'  => 'required|min:6|confirmed',
         ]);
 
+        // Simpan password TANPA HASH
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'customer',
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => $request->password, // plain text
+            'role'     => 'customer',
         ]);
 
         return redirect()->route('login')
             ->with('success', 'Registrasi berhasil, silakan login');
     }
 
+    // =====================
+    // LOGIN MANUAL
+    // =====================
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        // Cari user
+        $user = User::where('email', $request->email)->first();
 
-            return auth()->user()->role === 'admin'
-                ? redirect()->route('admin.dashboard')
-                : redirect()->route('products.index');
+        // Cek email dan password manual
+        if (!$user || $user->password !== $request->password) {
+            return back()->with('error', 'Email atau password salah');
         }
 
-        return back()->with('error', 'Email atau password salah');
+        // Login manual Laravel
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Redirect sesuai role
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        } else {
+            return redirect()->route('products.index');
+        }
     }
 
+    // =====================
+    // LOGOUT
+    // =====================
     public function logout(Request $request)
     {
         Auth::logout();

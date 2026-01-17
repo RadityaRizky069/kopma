@@ -5,22 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Product;
-use Illuminate\Support\Facades\Schema; 
+use App\Models\Transaction;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    /* =====================
-       DASHBOARD ADMIN
-    ====================== */
+    // ================= DASHBOARD =================
     public function dashboard()
     {
-        $totalProducts = Product::count();
-        $totalCustomers = User::where('role', 'customer')->count();
+        $totalProducts  = Product::count();
+        $totalCustomers = User::where('role','customer')->count();
 
-        // Cek apakah tabel transactions sudah ada
-        if (Schema::hasTable('transactions')) {
-            $totalTransactions = DB::table('transactions')->count();
+        // Aman walau tabel transaksi belum ada
+        if (Schema::hasTable('transaksi')) {
+            $totalTransactions = DB::table('transaksi')->count();
         } else {
             $totalTransactions = 0;
         }
@@ -32,39 +31,32 @@ class AdminController extends Controller
         ));
     }
 
-
-    /* =====================
-       DAFTAR CUSTOMER
-    ====================== */
+    // ================= LIST CUSTOMER =================
     public function customers()
     {
-        $customers = User::where('role', 'customer')->get();
+        $customers = User::where('role','customer')->get();
         return view('admin.customers', compact('customers'));
     }
 
-
-    /* =====================
-       LAPORAN PENJUALAN
-    ====================== */
+    // ================= LAPORAN =================
     public function reports(Request $request)
     {
-        $type = $request->input('type', 'daily'); 
-        $transactions = [];
+        $type = $request->input('type','daily');
 
-        // Cek dulu apakah tabel tersedia
-        if (Schema::hasTable('transactions')) {
-
-            if ($type == 'daily') {
-                $transactions = DB::table('transactions')
-                    ->whereDate('created_at', now()->format('Y-m-d'))
+        if (!Schema::hasTable('transaksi')) {
+            $transactions = collect();
+        } else {
+            if($type == 'daily'){
+                $transactions = DB::table('transaksi')
+                    ->whereDate('created_at', date('Y-m-d'))
                     ->get();
             } else {
-                $transactions = DB::table('transactions')
-                    ->whereMonth('created_at', now()->month)
+                $transactions = DB::table('transaksi')
+                    ->whereMonth('created_at', date('m'))
                     ->get();
             }
         }
 
-        return view('admin.reports', compact('transactions', 'type'));
+        return view('admin.reports', compact('transactions','type'));
     }
 }
