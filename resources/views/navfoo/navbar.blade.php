@@ -22,19 +22,18 @@
 
         <div style="display: flex; align-items: center; gap: 25px;">
             
-            {{-- IKON KERANJANG BELANJA --}}
+            {{-- IKON KERANJANG BELANJA DENGAN BADGE DINAMIS --}}
             @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
                 <a href="/cart" style="text-decoration: none; position: relative; color: #1e293b; transition: 0.3s; display: flex; align-items: center;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#1e293b'">
                     <i class="fa-solid fa-cart-shopping" style="font-size: 24px;"></i>
                     <span style="position: absolute; top: -10px; right: -12px; background: #ef4444; color: white; font-size: 11px; font-weight: 800; padding: 3px 7px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                        0
+                        {{ auth()->check() ? \App\Models\Cart::where('user_id', auth()->id())->sum('jumlah') : 0 }}
                     </span>
                 </a>
                 <div style="width: 1.5px; height: 30px; background: #e2e8f0;"></div>
             @endif
 
             @auth
-                {{-- PROFIL USER --}}
                 <div style="display: flex; align-items: center; gap: 18px;">
                     <div style="text-align: right; line-height: 1.3;">
                         <span style="display: block; font-weight: 700; color: #1e293b; font-size: 15px;">{{ auth()->user()->name }}</span>
@@ -44,13 +43,12 @@
                     <form action="/logout" method="POST" style="margin: 0;">
                         @csrf
                         <button type="submit" style="background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; padding: 10px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 8px;" 
-                                onmouseover="this.style.background='#e11d48'; this.style.color='white'">
+                                onmouseover="this.style.background='#e11d48'; this.style.color='white'" onmouseout="this.style.background='#fff1f2'; this.style.color='#e11d48'">
                             <i class="fa-solid fa-power-off"></i> Logout
                         </button>
                     </form>
                 </div>
             @else
-                {{-- LOGIN/DAFTAR --}}
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <a href="/login" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 15px;">Masuk</a>
                     <a href="/register" style="text-decoration: none; background: #28a745; color: white; padding: 12px 26px; border-radius: 12px; font-weight: 700; font-size: 15px; box-shadow: 0 6px 15px rgba(40,167,69,0.25);">Daftar</a>

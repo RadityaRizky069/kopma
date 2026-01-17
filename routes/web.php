@@ -53,12 +53,22 @@ Route::middleware(['auth','role:customer'])->group(function() {
     Route::get('products/{id}', [ProductController::class,'show'])
         ->name('products.show');
 
-    Route::post('cart/add/{id}', [CartController::class,'add'])
-        ->name('cart.add');
-
+    // --- KERANJANG ---
     Route::get('cart', [CartController::class,'index'])
         ->name('cart.index');
 
+    Route::post('cart/add/{id}', [CartController::class,'add'])
+        ->name('cart.add');
+
+    // ROUTE TAMBAHAN: Untuk update jumlah (+/-) di keranjang
+    Route::patch('cart/update/{id}', [CartController::class, 'update'])
+        ->name('cart.update');
+
+    // ROUTE TAMBAHAN: Untuk hapus barang dari keranjang (opsional)
+    Route::delete('cart/remove/{id}', [CartController::class, 'remove'])
+        ->name('cart.remove');
+
+    // --- TRANSAKSI ---
     Route::post('checkout', [TransactionController::class,'checkout'])
         ->name('checkout');
 
