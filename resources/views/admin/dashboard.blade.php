@@ -65,7 +65,7 @@
                 </div>
             </div>
             <div style="margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                <a href="{{ url('admin/reports') }}" style="text-decoration: none; color: #f59e0b; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                <a href="{{ route('admin.transactions') }}" style="text-decoration: none; color: #f59e0b; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 5px;">
                     Laporan Penjualan <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
                 </a>
             </div>
