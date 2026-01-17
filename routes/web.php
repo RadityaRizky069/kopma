@@ -45,6 +45,7 @@ Route::middleware(['auth','role:admin'])
 });
 
 /* ================= CUSTOMER ================= */
+/* ================= CUSTOMER ================= */
 Route::middleware(['auth','role:customer'])->group(function() {
 
     Route::get('products', [ProductController::class,'index'])
@@ -59,9 +60,18 @@ Route::middleware(['auth','role:customer'])->group(function() {
     Route::get('cart', [CartController::class,'index'])
         ->name('cart.index');
 
-    Route::post('checkout', [TransactionController::class,'checkout'])
-        ->name('checkout');
+    // ================= CHECKOUT =================
 
+// FORM CHECKOUT PRODUK
+Route::get('checkout/{product}', [TransactionController::class,'checkoutForm'])
+    ->name('checkout.form');
+
+// PROSES CHECKOUT PRODUK
+Route::post('checkout/{product}', [TransactionController::class,'checkoutProduct'])
+    ->name('checkout.process');
+
+
+    // RIWAYAT TRANSAKSI CUSTOMER
     Route::get('transactions', [TransactionController::class,'customerTransactions'])
         ->name('customer.transactions');
 });
