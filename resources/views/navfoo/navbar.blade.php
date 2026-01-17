@@ -21,7 +21,8 @@
                 @endif
             @endauth
 
-            <a href="#" class="nav-link">Tentang</a>
+            <a href="{{ route('tentang') }}" class="nav-link">Tentang</a>
+
         </div>
 
         <!-- ACTION -->

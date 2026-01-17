@@ -11,6 +11,7 @@ use App\Http\Controllers\TransactionController;
 /* ================= HOME ================= */
 // Diperbaiki agar mengirim data produk ke halaman depan
 Route::get('/', [ProductController::class, 'home'])->name('home');
+Route::view('/tentang', 'tentang')->name('tentang');
 
 /* ================= AUTH ================= */
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
