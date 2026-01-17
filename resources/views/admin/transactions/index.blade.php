@@ -17,6 +17,11 @@
         min-height: 100vh;
     }
 
+    /* FIX: Pastikan Popup SweetAlert selalu di paling depan (di atas Navbar) */
+    .swal2-container {
+        z-index: 99999 !important;
+    }
+
     /* Header Styling */
     .header-title {
         color: #0f172a;
@@ -326,6 +331,9 @@
 
 <script>
     function confirmAction(button, statusValue) {
+        // Mencegah form submit otomatis jika ada kesalahan
+        event.preventDefault();
+
         // Cari form terdekat dari tombol yang diklik
         const form = button.closest('form');
 
@@ -366,11 +374,12 @@
             cancelButtonColor: '#64748b',
             confirmButtonText: confirmButtonText,
             cancelButtonText: 'Batal',
-            reverseButtons: true, // Tombol batal di kiri, konfirmasi di kanan
+            reverseButtons: true,
+            focusCancel: true, // Fokus ke tombol batal agar tidak salah pencet
             padding: '2em',
             borderRadius: '16px',
             customClass: {
-                popup: 'animate__animated animate__fadeInDown' // Efek animasi muncul
+                popup: 'animate__animated animate__fadeInDown'
             }
         }).then((result) => {
             if (result.isConfirmed) {
