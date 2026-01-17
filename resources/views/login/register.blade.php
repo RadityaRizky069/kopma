@@ -6,7 +6,6 @@
 
 <section class="auth-wrapper">
 
-    <!-- LEFT -->
     <div class="auth-left">
         <h1>
             Gabung Bersama  
@@ -20,18 +19,11 @@
         </p>
     </div>
 
-    <!-- RIGHT -->
     <div class="auth-right">
         <div class="auth-card">
 
             <h2>Daftar Akun</h2>
             <p>Buat akun baru untuk mulai menggunakan KOPMA</p>
-
-            @if ($errors->any())
-                <div style="color:red; font-size:14px; margin-bottom:12px;">
-                    {{ $errors->first() }}
-                </div>
-            @endif
 
             <form action="{{ route('register') }}" method="POST" style="display:flex; flex-direction:column; gap:16px;">
                 @csrf
@@ -56,7 +48,7 @@
                     <input type="password" name="password_confirmation" placeholder="••••••••" required>
                 </div>
 
-                <button class="btn btn-primary" style="margin-top:6px;">
+                <button type="submit" class="btn btn-primary" style="margin-top:6px;">
                     Daftar
                 </button>
             </form>
