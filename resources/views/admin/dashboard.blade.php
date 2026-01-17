@@ -17,6 +17,7 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 40px;">
         
+        {{-- KARTU 1: TOTAL PRODUK --}}
         <div style="background: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; position: relative; overflow: hidden;" class="animate__animated animate__zoomIn">
             <div style="position: absolute; right: -15px; top: -15px; width: 110px; height: 110px; background: #dcfce7; border-radius: 50%; opacity: 0.6;"></div>
             <div style="display: flex; align-items: center; gap: 20px; position: relative;">
@@ -35,6 +36,7 @@
             </div>
         </div>
 
+        {{-- KARTU 2: TOTAL CUSTOMER --}}
         <div style="background: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; position: relative; overflow: hidden;" class="animate__animated animate__zoomIn animate__delay-1s">
             <div style="position: absolute; right: -15px; top: -15px; width: 110px; height: 110px; background: #e0f2fe; border-radius: 50%; opacity: 0.6;"></div>
             <div style="display: flex; align-items: center; gap: 20px; position: relative;">
@@ -53,6 +55,7 @@
             </div>
         </div>
 
+        {{-- KARTU 3: TOTAL TRANSAKSI (YANG DIUBAH TEKSNYA) --}}
         <div style="background: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; position: relative; overflow: hidden;" class="animate__animated animate__zoomIn animate__delay-2s">
             <div style="position: absolute; right: -15px; top: -15px; width: 110px; height: 110px; background: #fef3c7; border-radius: 50%; opacity: 0.6;"></div>
             <div style="display: flex; align-items: center; gap: 20px; position: relative;">
@@ -65,8 +68,8 @@
                 </div>
             </div>
             <div style="margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                <a href="{{ url('admin/reports') }}" style="text-decoration: none; color: #f59e0b; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 5px;">
-                    Laporan Penjualan <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+                <a href="{{ route('admin.transactions') }}" style="text-decoration: none; color: #f59e0b; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                    Konfirmasi Pesanan <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
                 </a>
             </div>
         </div>

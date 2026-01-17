@@ -19,7 +19,6 @@ class TransactionController extends Controller
         ]);
 
         $userId = Auth::id();
-        // Ambil data keranjang
         $cartItems = Cart::where('user_id', $userId)->get();
 
         if ($cartItems->isEmpty()) {
@@ -30,7 +29,6 @@ class TransactionController extends Controller
         try {
             $totalHarga = 0;
             foreach ($cartItems as $item) {
-                // Pastikan harga diambil dengan benar (cek 'harga' atau 'price')
                 $harga = $item->product->harga ?? $item->product->price;
                 $totalHarga += $harga * $item->jumlah;
             }
@@ -51,8 +49,8 @@ class TransactionController extends Controller
 
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
-                    'product_id'     => $item->produk_id, // PERBAIKAN: Pakai produk_id (sesuai tabel keranjang)
-                    'quantity'       => $item->jumlah,    // PERBAIKAN: Pakai jumlah
+                    'product_id'     => $item->produk_id,
+                    'quantity'       => $item->jumlah,
                     'price'          => $harga
                 ]);
 
@@ -84,6 +82,28 @@ class TransactionController extends Controller
     public function index()
     {
         $transactions = Transaction::with('user')->latest()->get();
-        return view('admin.transactions', compact('transactions'));
+        return view('admin.transactions.index', compact('transactions'));
     }
-}
+
+    // ================= UPDATE STATUS (TERIMA / TOLAK) =================
+    // Fungsi ini HARUS ada DI DALAM kurung kurawal class
+    public function updateStatus(Request $request, $id)
+    {
+        // 1. Validasi input status yang dikirim dari tombol
+        $request->validate([
+            'status' => 'required|in:diproses,selesai,ditolak'
+        ]);
+
+        // 2. Cari transaksi berdasarkan ID
+        $transaction = Transaction::findOrFail($id);
+
+        // 3. Update status database
+        $transaction->update([
+            'status' => $request->status
+        ]);
+
+        // 4. Redirect balik ke halaman sebelumnya
+        return redirect()->back()->with('success', 'Status berhasil diubah menjadi ' . $request->status);
+    }
+
+} // <--- PENUTUP CLASS HARUS DI SINI (PALING BAWAH)

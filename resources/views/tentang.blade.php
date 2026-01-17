@@ -6,6 +6,52 @@
 
 {{-- CSS KHUSUS HALAMAN INI --}}
 <style>
+    /* ================= ANIMASI TAMBAHAN ================= */
+    @keyframes fadeSlideRight {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeSlideLeft {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Terapkan Animasi */
+    .hero-content {
+        opacity: 0; 
+        animation: fadeSlideRight 1s ease forwards;
+    }
+
+    .hero-image {
+        opacity: 0; 
+        animation: fadeSlideLeft 1s ease forwards;
+        animation-delay: 0.3s; /* Muncul sedikit setelah teks */
+    }
+
+    .value-card {
+        opacity: 0;
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    /* Efek muncul bergantian (staggered) untuk kartu */
+    .values-grid .value-card:nth-child(1) { animation-delay: 0.4s; }
+    .values-grid .value-card:nth-child(2) { animation-delay: 0.6s; }
+    .values-grid .value-card:nth-child(3) { animation-delay: 0.8s; }
+
+    .quote-box {
+        opacity: 0;
+        animation: fadeInUp 1s ease forwards;
+        animation-delay: 1s;
+    }
+    /* ================= AKHIR ANIMASI ================= */
+
+
     /* Hero Section */
     .about-hero {
         padding: 80px 0;
@@ -230,7 +276,7 @@
     <div class="container">
         <div class="quote-box">
             <p class="quote-text">"Koperasi adalah soko guru perekonomian Indonesia, dan mahasiswa adalah agen perubahannya."</p>
-            <div style="font-weight: 700; color: var(--primary);">Radit Femboy</div>
+            <div style="font-weight: 700; color: var(--primary);">Ardhan Wijadja</div>
             <div style="font-weight: 700; color: var(--primary);">Ketua KOPMA</div>
         </div>
     </div>
