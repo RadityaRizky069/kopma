@@ -2,8 +2,9 @@
 
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     body {
@@ -258,20 +259,24 @@
                         </td>
                         <td style="text-align: center;">
                             
+                            {{-- LOGIKA TOMBOL ACC / REJECT DENGAN SWEETALERT --}}
                             @if($item->status == 'menunggu')
                                 <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST">
                                     @csrf
+                                    
                                     <div style="display: flex; gap: 8px; justify-content: center;">
-                                        <button type="submit" name="status" value="diproses" 
+                                        {{-- Tombol TERIMA --}}
+                                        <button type="button" 
                                             class="btn-action btn-accept"
-                                            onclick="return confirm('Terima pesanan ini?')"
+                                            onclick="confirmAction(this, 'diproses')"
                                             title="Terima (Proses)">
                                             <i class="fas fa-check"></i>
                                         </button>
 
-                                        <button type="submit" name="status" value="ditolak" 
+                                        {{-- Tombol TOLAK --}}
+                                        <button type="button" 
                                             class="btn-action btn-reject"
-                                            onclick="return confirm('Tolak pesanan ini?')"
+                                            onclick="confirmAction(this, 'ditolak')"
                                             title="Tolak Pesanan">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -279,12 +284,13 @@
                                 </form>
 
                             @elseif($item->status == 'diproses')
+                                {{-- Tombol SELESAIKAN --}}
                                 <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST">
                                     @csrf
                                     <div style="display: flex; justify-content: center;">
-                                        <button type="submit" name="status" value="selesai" 
+                                        <button type="button" 
                                             class="btn-action btn-finish"
-                                            onclick="return confirm('Selesaikan pesanan?')">
+                                            onclick="confirmAction(this, 'selesai')">
                                             Selesaikan <i class="fas fa-arrow-right" style="margin-left:5px;"></i>
                                         </button>
                                     </div>
@@ -298,12 +304,12 @@
                         </td>
                     </tr>
                     @empty
-                        {{-- KONDISI KOSONG (Di luar TR agar layout tidak rusak) --}}
+                        {{-- KONDISI KOSONG --}}
                     @endforelse
                 </tbody>
             </table>
 
-            {{-- Jika data kosong, tampilkan div khusus (di luar tabel agar cantik) --}}
+            {{-- Jika data kosong --}}
             @if($transactions->isEmpty())
             <div class="empty-state">
                 <div style="background: #f1f5f9; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
@@ -317,4 +323,70 @@
         </div>
     </div>
 </div>
+
+<script>
+    function confirmAction(button, statusValue) {
+        // Cari form terdekat dari tombol yang diklik
+        const form = button.closest('form');
+
+        // Tentukan teks dan warna berdasarkan status
+        let titleText = '';
+        let bodyText = '';
+        let confirmColor = '';
+        let iconType = '';
+        let confirmButtonText = '';
+
+        if (statusValue === 'diproses') {
+            titleText = 'Terima Pesanan?';
+            bodyText = 'Status transaksi akan berubah menjadi "Diproses".';
+            confirmColor = '#22c55e'; // Hijau
+            iconType = 'question';
+            confirmButtonText = 'Ya, Terima!';
+        } else if (statusValue === 'ditolak') {
+            titleText = 'Tolak Pesanan?';
+            bodyText = 'Transaksi ini akan ditolak secara permanen.';
+            confirmColor = '#ef4444'; // Merah
+            iconType = 'warning';
+            confirmButtonText = 'Ya, Tolak!';
+        } else if (statusValue === 'selesai') {
+            titleText = 'Selesaikan Pesanan?';
+            bodyText = 'Pastikan barang sudah diterima customer.';
+            confirmColor = '#3b82f6'; // Biru
+            iconType = 'info';
+            confirmButtonText = 'Ya, Selesai!';
+        }
+
+        // Tampilkan SweetAlert
+        Swal.fire({
+            title: titleText,
+            text: bodyText,
+            icon: iconType,
+            showCancelButton: true,
+            confirmButtonColor: confirmColor,
+            cancelButtonColor: '#64748b',
+            confirmButtonText: confirmButtonText,
+            cancelButtonText: 'Batal',
+            reverseButtons: true, // Tombol batal di kiri, konfirmasi di kanan
+            padding: '2em',
+            borderRadius: '16px',
+            customClass: {
+                popup: 'animate__animated animate__fadeInDown' // Efek animasi muncul
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Trik: Tambahkan input hidden status ke dalam form sebelum submit
+                // Karena tombol type="button" tidak mengirim value 'status'
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'status';
+                input.value = statusValue;
+                form.appendChild(input);
+
+                // Submit form
+                form.submit();
+            }
+        });
+    }
+</script>
+
 @endsection

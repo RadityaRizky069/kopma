@@ -3,11 +3,13 @@
 <nav style="background: white; padding: 18px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 1000; font-family: 'Inter', sans-serif;">
     <div style="max-width: 1200px; margin: auto; padding: 0 25px; display: flex; justify-content: space-between; align-items: center;">
         
+        {{-- LOGO --}}
         <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
             <div style="background: #28a745; color: white; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 24px; box-shadow: 0 4px 12px rgba(40,167,69,0.3);">K</div>
             <span style="font-weight: 800; font-size: 26px; color: #1e293b; letter-spacing: -1px;">KOPMA</span>
         </a>
 
+        {{-- MENU TENGAH --}}
         <div style="display: flex; align-items: center; gap: 35px;">
             <a href="/" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Beranda</a>
             
@@ -16,13 +18,21 @@
             @else
                 <a href="/products" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Produk</a>
             @endif
+
+            {{-- TAMBAHAN: MENU RIWAYAT (Hanya untuk Customer) --}}
+            @if(auth()->check() && auth()->user()->role == 'customer')
+                <a href="{{ route('customer.transactions') }}" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">
+                    Riwayat
+                </a>
+            @endif
             
             <a href="/tentang" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 16px; transition: 0.3s;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#64748b'">Tentang</a>
         </div>
 
+        {{-- BAGIAN KANAN (CART & USER) --}}
         <div style="display: flex; align-items: center; gap: 25px;">
             
-            {{-- IKON KERANJANG BELANJA DENGAN BADGE DINAMIS --}}
+            {{-- IKON KERANJANG --}}
             @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
                 <a href="/cart" style="text-decoration: none; position: relative; color: #1e293b; transition: 0.3s; display: flex; align-items: center;" onmouseover="this.style.color='#28a745'" onmouseout="this.style.color='#1e293b'">
                     <i class="fa-solid fa-cart-shopping" style="font-size: 24px;"></i>
@@ -37,7 +47,7 @@
                 <div style="display: flex; align-items: center; gap: 18px;">
                     <div style="text-align: right; line-height: 1.3;">
                         <span style="display: block; font-weight: 700; color: #1e293b; font-size: 15px;">{{ auth()->user()->name }}</span>
-                        <small style="color: #28a745; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">{{ auth()->user()->role }}</small>
+                        <span style="color: #28a745; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; display: block;">{{ auth()->user()->role }}</span>
                     </div>
                     
                     <form action="/logout" method="POST" style="margin: 0;">
