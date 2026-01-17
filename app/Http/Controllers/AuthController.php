@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -35,11 +36,10 @@ class AuthController extends Controller
             'password'  => 'required|min:6|confirmed',
         ]);
 
-        // Simpan password TANPA HASH
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            'password' => $request->password, // plain text
+            'password' => Hash::make($request->password), // ✅ HASH
             'role'     => 'customer',
         ]);
 
@@ -48,33 +48,29 @@ class AuthController extends Controller
     }
 
     // =====================
-    // LOGIN MANUAL
+    // LOGIN
     // =====================
     public function login(Request $request)
     {
-        $request->validate([
+        $credentials = $request->validate([
             'email'    => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
-        // Cari user
-        $user = User::where('email', $request->email)->first();
-
-        // Cek email dan password manual
-        if (!$user || $user->password !== $request->password) {
+        if (!Auth::attempt($credentials)) {
             return back()->with('error', 'Email atau password salah');
         }
 
-        // Login manual Laravel
-        Auth::login($user);
         $request->session()->regenerate();
+
+        $user = Auth::user();
 
         // Redirect sesuai role
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('products.index');
         }
+
+        return redirect()->route('products.index');
     }
 
     // =====================
@@ -83,6 +79,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
