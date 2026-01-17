@@ -10,7 +10,7 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:produk,id',
+            'product_id' => 'required',
             'content' => 'required'
         ]);
 
@@ -21,6 +21,40 @@ class CommentController extends Controller
             'content' => $request->content
         ]);
 
+        return back();
+    }
+
+    public function update(Request $request, Comment $comment)
+    {
+        $this->authorize('update', $comment);
+
+        $request->validate([
+            'content' => 'required'
+        ]);
+
+        $comment->update([
+            'content' => $request->content
+        ]);
+
+        return back();
+    }
+
+    public function destroy(Comment $comment)
+    {
+        $this->authorize('delete', $comment);
+        $comment->delete();
+        return back();
+    }
+
+    public function like(Comment $comment)
+    {
+        $comment->increment('likes');
+        return back();
+    }
+
+    public function dislike(Comment $comment)
+    {
+        $comment->increment('dislikes');
         return back();
     }
 }

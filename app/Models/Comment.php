@@ -10,7 +10,9 @@ class Comment extends Model
         'product_id',
         'user_id',
         'parent_id',
-        'content'
+        'content',
+        'likes',
+        'dislikes'
     ];
 
     public function user()

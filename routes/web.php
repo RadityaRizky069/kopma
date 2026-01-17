@@ -51,10 +51,28 @@ Route::get('products', [ProductController::class,'index'])
 Route::get('products/{id}', [ProductController::class,'show'])
     ->name('products.show');
 
-/* ================= KOMENTAR ================= */
-Route::post('/comments', [CommentController::class, 'store'])
-    ->middleware('auth')
-    ->name('comments.store');
+/* ================= KOMENTAR (LOGIN REQUIRED) ================= */
+Route::middleware('auth')->group(function () {
+
+    // buat komentar / reply
+    Route::post('/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
+
+    // edit komentar
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])
+        ->name('comments.update');
+
+    // hapus komentar
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+        ->name('comments.destroy');
+
+    // like & dislike
+    Route::post('/comments/{comment}/like', [CommentController::class, 'like'])
+        ->name('comments.like');
+
+    Route::post('/comments/{comment}/dislike', [CommentController::class, 'dislike'])
+        ->name('comments.dislike');
+});
 
 /* ================= CUSTOMER - PRIVATE ================= */
 Route::middleware(['role:customer'])->group(function () {
