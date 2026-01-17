@@ -9,63 +9,67 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    // Menampilkan halaman keranjang
     public function index()
     {
-        $cartItems = Cart::where('user_id', Auth::id())->with('product')->get();
+        $cartItems = Cart::with('product')->where('user_id', Auth::id())->get();
         return view('customer.cart', compact('cartItems'));
     }
 
-    public function add($id)
-    {
-        $product = Product::findOrFail($id);
-
-        // Cek apakah stok masih ada
-        if ($product->stok <= 0) {
-            return redirect()->back()->with('error', 'Maaf, stok produk habis!');
-        }
-
-        $cart = Cart::where('user_id', Auth::id())
-                    ->where('produk_id', $product->id)
-                    ->first();
-
-        if ($cart) {
-            // Jika sudah ada di keranjang, cek stok sebelum tambah
-            if ($cart->jumlah + 1 > $product->stok) {
-                return redirect()->back()->with('error', 'Jumlah melebihi stok yang tersedia!');
-            }
-            $cart->increment('jumlah');
-        } else {
-            // Jika belum ada, buat baru
-            Cart::create([
-                'user_id' => Auth::id(),
-                'produk_id' => $product->id,
-                'jumlah' => 1
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Produk berhasil masuk keranjang!');
+    // FUNGSI INI YANG KURANG (Untuk tambah ke keranjang)
+    public function add(Request $request, $id)
+{
+    $product = \App\Models\Product::findOrFail($id);
+    
+    if ($product->stok <= 0) {
+        return back()->with('error', 'Maaf, stok barang habis.');
     }
 
+    $cartItem = \App\Models\Cart::where('user_id', auth()->id())
+                    ->where('produk_id', $id)
+                    ->first();
+
+    if ($cartItem) {
+        $baru = $cartItem->jumlah + 1;
+        if ($baru > $product->stok) {
+            return back()->with('error', 'Gagal: Jumlah di keranjang sudah mencapai batas stok.');
+        }
+        $cartItem->update(['jumlah' => $baru]);
+    } else {
+        \App\Models\Cart::create([
+            'user_id' => auth()->id(),
+            'produk_id' => $id,
+            'jumlah' => 1
+        ]);
+    }
+
+    // KUNCI DI SINI: Menggunakan back() agar halaman tidak pindah
+    return back()->with('success', $product->nama_produk . ' berhasil ditambah ke keranjang!');
+}
+    // Untuk update jumlah (Tambah/Kurang) di halaman keranjang
     public function update(Request $request, $id)
     {
         $cartItem = Cart::findOrFail($id);
         $product = $cartItem->product;
-        $type = $request->type; // 'plus' atau 'minus'
 
-        if ($type == 'plus') {
-            if ($cartItem->jumlah + 1 > $product->stok) {
-                return back()->with('error', 'Stok tidak mencukupi!');
-            }
-            $cartItem->increment('jumlah');
-        } else {
-            if ($cartItem->jumlah > 1) {
-                $cartItem->decrement('jumlah');
-            } else {
-                $cartItem->delete();
-                return back()->with('success', 'Produk dihapus dari keranjang');
-            }
+        if ($request->jumlah > $product->stok) {
+            return back()->with('error', 'Stok tidak mencukupi (Sisa: ' . $product->stok . ')');
         }
 
-        return back()->with('success', 'Keranjang diperbarui');
+        if ($request->jumlah < 1) {
+            $cartItem->delete();
+            return back()->with('success', 'Produk dihapus dari keranjang.');
+        }
+
+        $cartItem->update(['jumlah' => $request->jumlah]);
+        return back()->with('success', 'Keranjang diperbarui.');
+    }
+
+    // Untuk hapus item
+    public function remove($id)
+    {
+        $cartItem = Cart::findOrFail($id);
+        $cartItem->delete();
+        return back()->with('success', 'Item berhasil dihapus.');
     }
 }

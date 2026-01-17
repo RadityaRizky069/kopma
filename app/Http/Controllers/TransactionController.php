@@ -8,65 +8,82 @@ use App\Models\TransactionItem;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
-    // Admin: daftar semua transaksi
-    public function index()
+    public function checkout(Request $request)
     {
-        $transactions = Transaction::all();
-        return view('admin.transactions', compact('transactions'));
-    }
-
-    // Admin: ubah status transaksi
-    public function updateStatus(Request $request, $id)
-    {
-        $transaction = Transaction::findOrFail($id);
-        $transaction->status = $request->input('status');
-        $transaction->save();
-        return redirect()->back()->with('success','Status transaksi diperbarui');
-    }
-
-    // Customer: checkout
-    public function checkout()
-    {
-        $cartItems = Cart::where('user_id', Auth::id())->get();
-        if($cartItems->isEmpty()){
-            return redirect()->back()->with('error','Keranjang kosong');
-        }
-
-        $total = 0;
-        foreach($cartItems as $item){
-            $total += $item->quantity * $item->product->price;
-        }
-
-        $transaction = Transaction::create([
-            'user_id'=>Auth::id(),
-            'total'=>$total,
-            'status'=>'menunggu'
+        $request->validate([
+            'metode_pembayaran' => 'required'
         ]);
 
-        foreach($cartItems as $item){
-            TransactionItem::create([
-                'transaction_id'=>$transaction->id,
-                'product_id'=>$item->product_id,
-                'quantity'=>$item->quantity,
-                'price'=>$item->product->price
-            ]);
+        $userId = Auth::id();
+        // Ambil data keranjang
+        $cartItems = Cart::where('user_id', $userId)->get();
 
-            // kurangi stok produk
-            $item->product->decrement('stock', $item->quantity);
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Keranjang belanja kosong!');
         }
 
-        Cart::where('user_id', Auth::id())->delete();
+        DB::beginTransaction();
+        try {
+            $totalHarga = 0;
+            foreach ($cartItems as $item) {
+                // Pastikan harga diambil dengan benar (cek 'harga' atau 'price')
+                $harga = $item->product->harga ?? $item->product->price;
+                $totalHarga += $harga * $item->jumlah;
+            }
 
-        return redirect()->route('customer.transactions')->with('success','Checkout berhasil');
+            // 1. Simpan Transaksi Utama
+            $transaction = Transaction::create([
+                'user_id'           => $userId,
+                'kode_transaksi'    => 'KOP-' . strtoupper(uniqid()),
+                'total_harga'       => $totalHarga,
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'status'            => 'menunggu',
+                'tanggal'           => now()
+            ]);
+
+            // 2. Simpan Detail Transaksi
+            foreach ($cartItems as $item) {
+                $harga = $item->product->harga ?? $item->product->price;
+
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id'     => $item->produk_id, // PERBAIKAN: Pakai produk_id (sesuai tabel keranjang)
+                    'quantity'       => $item->jumlah,    // PERBAIKAN: Pakai jumlah
+                    'price'          => $harga
+                ]);
+
+                // Potong Stok
+                $product = Product::find($item->produk_id);
+                if($product) {
+                    $product->decrement('stok', $item->jumlah);
+                }
+            }
+
+            // 3. Hapus Keranjang
+            Cart::where('user_id', $userId)->delete();
+
+            DB::commit();
+            return redirect()->route('customer.transactions')->with('success', 'Checkout berhasil!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal Checkout: ' . $e->getMessage());
+        }
     }
 
-    // Customer: riwayat transaksi
     public function customerTransactions()
     {
-        $transactions = Transaction::where('user_id', Auth::id())->get();
+        $transactions = Transaction::where('user_id', Auth::id())->latest()->get();
         return view('customer.transactions', compact('transactions'));
+    }
+
+    public function index()
+    {
+        $transactions = Transaction::with('user')->latest()->get();
+        return view('admin.transactions', compact('transactions'));
     }
 }
