@@ -52,21 +52,6 @@
                     {{ $p->stok }} Stok
                 </div>
 
-<<<<<<< HEAD
-                <!-- BUTTON KERANJANG (OPSIONAL) -->
-                <div class="cart-btn" style="position:absolute;bottom:110px;right:15px;z-index:10;">
-                    <button onclick="Swal.fire({icon:'success',title:'Ditambahkan!',
-                            text:'{{ $p->nama_produk }} masuk keranjang',
-                            showConfirmButton:false,timer:1500})"
-                            style="background:#28a745;color:white;border:none;
-                                   width:45px;height:45px;border-radius:50%;
-                                   cursor:pointer;display:flex;
-                                   align-items:center;justify-content:center;
-                                   font-size:18px;
-                                   box-shadow:0 10px 15px rgba(40,167,69,0.3);">
-                        <i class="fas fa-shopping-basket"></i>
-                    </button>
-=======
                 <div class="cart-btn" style="position: absolute; bottom: 110px; right: 15px; z-index: 10;">
                     <form action="{{ route('cart.add', $p->id) }}" method="POST">
                         @csrf
@@ -77,7 +62,6 @@
                             <i class="fas fa-shopping-basket"></i>
                         </button>
                     </form>
->>>>>>> 49d1cd3b5b1209068fddcf5ae000018746ce8941
                 </div>
 
                 <!-- GAMBAR -->
@@ -130,25 +114,16 @@
                 </div>
             </div>
             @empty
-<<<<<<< HEAD
-                <p style="text-align:center;width:100%;">
-                    Produk belum tersedia
-                </p>
-=======
                 <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #64748b;">
                     <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 15px; color: #cbd5e1;"></i>
                     <p>Belum ada produk yang tersedia.</p>
                 </div>
->>>>>>> 49d1cd3b5b1209068fddcf5ae000018746ce8941
             @endforelse
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<<<<<<< HEAD
-@endsection
-=======
 
 @if(session('success'))
     <script>
@@ -173,4 +148,3 @@
 @endif
 
 @endsection
->>>>>>> 49d1cd3b5b1209068fddcf5ae000018746ce8941

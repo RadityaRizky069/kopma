@@ -5,29 +5,28 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
+Schema::create('transactions', function (Blueprint $table) {
+    $table->id(); // BIGINT UNSIGNED
 
-            // ✅ HARUS SAMA DENGAN users.id
-            $table->unsignedBigInteger('user_id');
+    $table->foreignId('user_id')
+        ->constrained()
+        ->onDelete('cascade');
 
-            $table->integer('total');
-            $table->string('status')->default('pending');
-            $table->string('payment_method')->nullable();
-            $table->timestamps();
+    $table->integer('total');
+    $table->string('status')->default('pending');
 
-            // ✅ FOREIGN KEY MANUAL (PALING AMAN)
-            $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
-        });
+    // ⬅⬅⬅ PINDAHKAN KE SINI
+    $table->string('payment_method')->nullable();
+
+    $table->timestamps();
+});
+
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('transaction_items');
     }
 };

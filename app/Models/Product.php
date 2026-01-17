@@ -9,14 +9,15 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'produk';
+    // ❌ JANGAN pakai $table = 'produk'
+    // Laravel otomatis pakai tabel `products`
 
     protected $fillable = [
         'nama_produk',
         'deskripsi',
         'harga',
         'stok',
-        'gambar',
-        'kategori_id'
+        'kategori_id',
+        'gambar'
     ];
 }
