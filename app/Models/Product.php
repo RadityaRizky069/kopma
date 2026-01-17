@@ -19,4 +19,15 @@ class Product extends Model
         'gambar',
         'kategori_id'
     ];
+
+    // =========================
+    // RELASI KOMENTAR
+    // =========================
+public function comments()
+{
+    return $this->hasMany(Comment::class, 'product_id')
+        ->whereNull('parent_id')
+        ->with(['user','replies']);
+}
+
 }
