@@ -1,64 +1,49 @@
 @extends('layouts.main')
 
 @section('content')
+<style>
+    .form-wrapper { max-width: 650px; margin: 50px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+    .form-title { font-weight: 800; text-align: center; color: #2d3748; margin-bottom: 30px; }
+    .label-style { display: block; font-weight: 700; color: #4a5568; margin-bottom: 8px; font-size: 0.9rem; }
+    .input-style { width: 100%; padding: 12px 15px; border: 2px solid #edf2f7; border-radius: 10px; margin-bottom: 20px; outline: none; transition: 0.3s; }
+    .input-style:focus { border-color: #28a745; }
+    .btn-submit-full { width: 100%; background: #28a745; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+    .btn-submit-full:hover { background: #218838; transform: translateY(-2px); }
+</style>
 
-<div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Tambah Produk Baru</h2>
-        <a href="{{ route('admin.products.index') }}" class="text-gray-600 hover:text-gray-900 font-medium">
-            &larr; Kembali
-        </a>
-    </div>
+<div class="form-wrapper">
+    <h2 class="form-title">Tambah Produk Baru</h2>
+    <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <label class="label-style">Nama Produk</label>
+        <input type="text" name="nama_produk" class="input-style" placeholder="Masukkan nama produk..." required>
 
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div class="p-8">
-            <form action="{{ route('admin.products.store') }}" method="POST">
-                @csrf
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="col-span-1 md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Produk</label>
-                        <input type="text" name="nama_produk" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition" placeholder="Masukkan nama produk" required>
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Harga (Rp)</label>
-                        <input type="number" name="harga" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition" placeholder="0" required>
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Stok</label>
-                        <input type="number" name="stok" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition" placeholder="0" required>
-                    </div>
-
-                    <div class="col-span-1 md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Kategori</label>
-                        <select name="kategori_id" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
-                            <option value="" disabled selected>-- Pilih Kategori --</option>
-                            @foreach($categories as $c)
-                                <option value="{{ $c->id }}">{{ $c->nama_kategori }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-span-1 md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
-                        <textarea name="deskripsi" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition" placeholder="Jelaskan detail produk..."></textarea>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end space-x-4">
-                    <a href="{{ route('admin.products.index') }}" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
-                        Batal
-                    </a>
-                    <button type="submit" class="px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:bg-green-700 transition font-bold shadow-md">
-                        Simpan Produk
-                    </button>
-                </div>
-
-            </form>
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <label class="label-style">Harga (Rp)</label>
+                <input type="number" name="harga" class="input-style" placeholder="0" required>
+            </div>
+            <div style="flex: 1;">
+                <label class="label-style">Stok</label>
+                <input type="number" name="stok" class="input-style" placeholder="0" required>
+            </div>
         </div>
-    </div>
-</div>
 
+        <label class="label-style">Kategori</label>
+        <select name="kategori_id" class="input-style">
+            @foreach($categories as $c)
+                <option value="{{ $c->id }}">{{ $c->nama_kategori }}</option>
+            @endforeach
+        </select>
+
+        <label class="label-style">Unggah Foto Produk</label>
+        <input type="file" name="gambar" class="input-style" accept="image/*">
+
+        <label class="label-style">Deskripsi</label>
+        <textarea name="deskripsi" class="input-style" rows="4" placeholder="Jelaskan detail produk..."></textarea>
+
+        <button type="submit" class="btn-submit-full">Simpan ke Dashboard</button>
+        <a href="{{ route('admin.products.index') }}" style="display: block; text-align: center; margin-top: 20px; color: #a0aec0; text-decoration: none;">Batal dan Kembali</a>
+    </form>
+</div>
 @endsection
