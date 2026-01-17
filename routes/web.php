@@ -9,9 +9,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\TransactionController;
 
 /* ================= HOME ================= */
-Route::get('/', function () {
-    return view('home');
-})->name('home'); // 🔥 WAJIB ADA
+// Diperbaiki agar mengirim data produk ke halaman depan
+Route::get('/', [ProductController::class, 'home'])->name('home');
 
 /* ================= AUTH ================= */
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

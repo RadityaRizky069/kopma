@@ -1,114 +1,125 @@
 @extends('layouts.main')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<div class="container mx-auto px-4 py-6">
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h2 class="text-2xl font-bold text-gray-800">Kelola Produk</h2>
-        
-        <a href="{{ route('admin.products.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md transition flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Produk
+<div style="padding: 40px; background: #f9f9f9; min-height: 80vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h2 style="font-weight: 800; color: #2d3748; margin: 0; font-size: 28px;">Kelola Katalog Produk</h2>
+            <p style="color: #718096; margin-top: 5px;">Total ada {{ count($products) }} produk terdaftar</p>
+        </div>
+        <a href="{{ route('admin.products.create') }}" style="background: #28a745; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2); transition: 0.3s; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 20px;">+</span> Tambah Produk
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 shadow-sm" role="alert">
-            <p class="font-bold">Berhasil!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-    @endif
-
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full leading-normal">
-                <thead>
-                    <tr>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Nama Produk
-                        </th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Harga
-                        </th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Stok
-                        </th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($products as $p)
-                    <tr class="hover:bg-gray-50 transition duration-150">
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <div class="flex items-center">
-                                <div class="ml-3">
-                                    <p class="text-gray-900 font-bold whitespace-no-wrap">
-                                        {{ $p->nama_produk }}
-                                    </p>
-                                    <p class="text-gray-500 text-xs mt-1 truncate w-40">
-                                        {{ $p->deskripsi ?? '-' }}
-                                    </p>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <span class="text-green-700 font-semibold bg-green-100 px-2 py-1 rounded-full text-xs">
-                                Rp {{ number_format($p->harga, 0, ',', '.') }}
-                            </span>
-                        </td>
-
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
-                            @if($p->stok <= 5)
-                                <span class="text-red-600 font-bold bg-red-100 px-2 py-1 rounded-full text-xs">
-                                    {{ $p->stok }} (Low)
-                                </span>
-                            @else
-                                <span class="text-gray-900 font-semibold">
-                                    {{ $p->stok }}
-                                </span>
-                            @endif
-                        </td>
-
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
-                            <div class="flex justify-center items-center gap-3">
-                                <a href="{{ route('admin.products.edit', $p->id) }}" class="text-blue-600 hover:text-blue-900 transition" title="Edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </a>
-
-                                <form action="{{ route('admin.products.destroy', $p->id) }}" method="POST" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus produk {{ $p->nama_produk }}?')" class="text-red-600 hover:text-red-900 transition pt-1" title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center text-gray-500">
-                            Belum ada data produk.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        {{-- <div class="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
-            {{ $products->links() }}
-        </div> --}}
+    <div style="background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #edf2f7;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #edf2f7;">
+                    <th style="padding: 20px; text-align: left; color: #4a5568; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Gambar</th>
+                    <th style="padding: 20px; text-align: left; color: #4a5568; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Nama Produk</th>
+                    <th style="padding: 20px; text-align: left; color: #4a5568; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Harga</th>
+                    <th style="padding: 20px; text-align: left; color: #4a5568; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Stok</th>
+                    <th style="padding: 20px; text-align: center; color: #4a5568; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($products as $p)
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;" onmouseover="this.style.background='#fcfdfd'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 15px;">
+                        @if($p->gambar)
+                            <img src="{{ asset('storage/' . $p->gambar) }}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        @else
+                            <div style="width: 70px; height: 70px; background: #f1f5f9; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 11px; font-weight: 600;">No Pic</div>
+                        @endif
+                    </td>
+                    <td style="padding: 15px;">
+                        <span style="display: block; font-weight: 700; color: #1e293b; font-size: 1rem;">{{ $p->nama_produk }}</span>
+                        <small style="color: #94a3b8;">ID: #PROD-{{ $p->id }}</small>
+                    </td>
+                    <td style="padding: 15px;">
+                        <span style="background: #ecfdf5; color: #059669; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.9rem;">
+                            Rp {{ number_format($p->harga, 0, ',', '.') }}
+                        </span>
+                    </td>
+                    <td style="padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="font-weight: 600; color: #475569;">{{ $p->stok }}</span>
+                            <span style="color: #94a3b8; font-size: 0.8rem;">Unit</span>
+                        </div>
+                    </td>
+                    <td style="padding: 15px; text-align: center;">
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <a href="{{ route('admin.products.edit', $p->id) }}" style="background: #eff6ff; color: #2563eb; padding: 8px 18px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: 0.3s; border: 1px solid #dbeafe;">
+                                Edit
+                            </a>
+                            
+                            <form id="delete-form-{{ $p->id }}" action="{{ route('admin.products.destroy', $p->id) }}" method="POST" style="display: none;">
+                                @csrf @method('DELETE')
+                            </form>
+                            
+                            <button type="button" onclick="confirmDelete({{ $p->id }}, '{{ $p->nama_produk }}')" style="background: #fef2f2; color: #dc2626; padding: 8px 18px; border-radius: 10px; border: 1px solid #fee2e2; cursor: pointer; font-size: 0.85rem; font-weight: 700; transition: 0.3s;">
+                                Hapus
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" style="padding: 50px; text-align: center; color: #94a3b8; font-style: italic;">
+                        Belum ada data produk di katalog.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
+<script>
+    // 1. Fungsi Konfirmasi Hapus
+    function confirmDelete(id, name) {
+        Swal.fire({
+            title: 'Hapus Produk?',
+            text: "Produk '" + name + "' akan dihapus permanen dari katalog!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Merah
+            cancelButtonColor: '#64748b',  // Abu-abu
+            confirmButtonText: 'Ya, Hapus Saja!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            borderRadius: '20px',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        })
+    }
+
+    // 2. Notifikasi Sukses (Jika ada session success)
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 2500,
+            borderRadius: '20px',
+            showClass: {
+                popup: 'animate__animated animate__zoomIn'
+            }
+        });
+    @endif
+</script>
 @endsection
