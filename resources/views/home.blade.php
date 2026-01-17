@@ -4,6 +4,7 @@
 
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 @if(auth()->check() && auth()->user()->role == 'admin')
     {{-- =========================================================== --}}
@@ -69,7 +70,7 @@
     
     <section class="container" style="margin-top:80px; padding: 0 20px;">
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:64px; align-items:center;">
-            <div>
+            <div class="animate__animated animate__fadeInLeft">
                 <span style="background:#DCFCE7; color:#166534; padding:8px 18px; border-radius:999px; font-size:14px; font-weight:700; letter-spacing: 0.5px;">
                     <i class="fas fa-check-circle"></i> Platform Koperasi Digital
                 </span>
@@ -83,13 +84,13 @@
                 </p>
                 
                 <div>
-                    <a href="{{ url('/products') }}" style="background:#28a745; border:none; padding:18px 40px; border-radius:14px; color:white; text-decoration:none; font-weight:700; font-size: 16px; box-shadow: 0 10px 20px rgba(40,167,69,0.2); transition: 0.3s;">
+                    <a href="{{ route('products.index') }}" style="background:#28a745; border:none; padding:18px 40px; border-radius:14px; color:white; text-decoration:none; font-weight:700; font-size: 16px; box-shadow: 0 10px 20px rgba(40,167,69,0.2); transition: 0.3s;">
                         @auth Mulai Belanja Sekarang @else Daftar Anggota Sekarang @endauth
                     </a>
                 </div>
             </div>
 
-            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius:40px; height:420px; display:flex; align-items:center; justify-content:center; color:#166534; font-weight:800; border: 2px dashed #bbf7d0; font-size: 20px;">
+            <div class="animate__animated animate__fadeInRight" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius:40px; height:420px; display:flex; align-items:center; justify-content:center; color:#166534; font-weight:800; border: 2px dashed #bbf7d0; font-size: 20px;">
                 <div style="text-align: center;">
                     <i class="fas fa-mobile-alt" style="font-size: 60px; margin-bottom: 15px; display: block;"></i>
                     Preview Aplikasi
@@ -104,36 +105,59 @@
                 <h2 style="font-size:32px; font-weight:800; color: #1e293b; letter-spacing: -0.5px;">Produk Populer</h2>
                 <p style="color: #64748b; margin: 5px 0 0 0;">Pilihan terbaik untuk kebutuhan mahasiswa hari ini.</p>
             </div>
-            <a href="/products" style="color: #28a745; font-weight: 700; text-decoration: none;">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+            
+            <a href="{{ route('products.index') }}" style="color: #28a745; font-weight: 700; text-decoration: none;">
+                Lihat Semua <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
 
         <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:30px;">
             @forelse($products as $p)
                 <div style="background: white; border-radius: 24px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; transition: 0.3s;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
+                    
+                    {{-- 1. GAMBAR PRODUK --}}
                     <div style="width: 100%; height: 220px; border-radius: 18px; overflow: hidden; margin-bottom: 20px; background: #f8fafc; position: relative;">
-                        <span style="position: absolute; top: 12px; left: 12px; background: white; padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; color: #64748b; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <span style="position: absolute; top: 12px; left: 12px; background: white; padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; color: #64748b; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 2;">
                             {{ $p->stok ?? '0' }} Stok
                         </span>
                         
-                        @if($p->gambar)
-                            <img src="{{ asset('storage/' . $p->gambar) }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        @else
-                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: 600;">No Image</div>
-                        @endif
+                        <a href="{{ route('products.show', $p->id) }}" style="display:block; width:100%; height:100%;">
+                            @if($p->gambar)
+                                <img src="{{ asset('storage/' . $p->gambar) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-weight: 600;">No Image</div>
+                            @endif
+                        </a>
                     </div>
 
-                    <small style="color: #28a745; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">Kategori Umum</small>
-                    <h3 style="font-size:20px; font-weight:700; color: #1e293b; margin: 8px 0 15px 0; min-height: 24px;">{{ $p->nama_produk }}</h3>
+                    <small style="color: #28a745; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
+                        {{ $p->category->nama_kategori ?? 'Umum' }}
+                    </small>
+                    
+                    {{-- 2. JUDUL PRODUK --}}
+                    <h3 style="font-size:20px; font-weight:700; margin: 8px 0 15px 0; min-height: 24px;">
+                        <a href="{{ route('products.show', $p->id) }}" style="text-decoration: none; color: #1e293b;">
+                            {{ $p->nama_produk }}
+                        </a>
+                    </h3>
                     
                     <div style="margin-bottom: 20px;">
                         <span style="font-size: 22px; font-weight: 800; color: #1e293b;">Rp {{ number_format($p->harga, 0, ',', '.') }}</span>
                     </div>
 
-                    <button style="width:100%; background:#28a745; color:white; border:none; padding:15px; border-radius:14px; font-weight:700; cursor:pointer; display: flex; align-items:center; justify-content: center; gap: 10px; transition: 0.3s; font-size: 15px;" 
+                    {{-- 3. TOMBOL KERANJANG (DIBUAT SAMA UNTUK SEMUA) --}}
+                    {{-- Kita hapus @auth/@else, pakai FORM ini saja. --}}
+                    {{-- Kalau Tamu klik -> Dikirim ke Route -> Dicegat Middleware -> Muncul Notif. --}}
+                    <form action="{{ route('cart.add', $p->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" 
+                            style="width:100%; background:#28a745; color:white; border:none; padding:15px; border-radius:14px; font-weight:700; cursor:pointer; display: flex; align-items:center; justify-content: center; gap: 10px; transition: 0.3s; font-size: 15px;" 
                             onmouseover="this.style.background='#218838'" 
                             onmouseout="this.style.background='#28a745'">
-                        <i class="fas fa-cart-plus"></i> + Keranjang
-                    </button>
+                            <i class="fas fa-cart-plus"></i> + Keranjang
+                        </button>
+                    </form>
+
                 </div>
             @empty
                 <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: #f8fafc; border-radius: 20px;">
@@ -143,6 +167,19 @@
             @endforelse
         </div>
     </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if(session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        </script>
+    @endif
 @endif
 
 @endsection

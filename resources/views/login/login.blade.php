@@ -55,4 +55,32 @@
 
 </section>
 
+{{-- === BAGIAN SCRIPT NOTIFIKASI === --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{{-- 1. Menangkap pesan jika dipaksa login dari Middleware (session 'failed') --}}
+@if(session('failed'))
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Akses Dibatasi',
+            text: '{{ session('failed') }}',
+            confirmButtonText: 'OK, Siap Login',
+            confirmButtonColor: '#28a745'
+        });
+    </script>
+@endif
+
+{{-- 2. Menangkap pesan jika Email/Password Salah (session 'error') --}}
+@if(session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Masuk',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#d33'
+        });
+    </script>
+@endif
+
 @endsection

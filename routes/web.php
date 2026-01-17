@@ -9,7 +9,6 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\TransactionController;
 
 /* ================= HOME ================= */
-// Diperbaiki agar mengirim data produk ke halaman depan
 Route::get('/', [ProductController::class, 'home'])->name('home');
 Route::view('/tentang', 'tentang')->name('tentang');
 
@@ -44,14 +43,21 @@ Route::middleware(['auth','role:admin'])
         Route::get('reports', [AdminController::class,'reports'])->name('reports');
 });
 
-/* ================= CUSTOMER ================= */
-Route::middleware(['auth','role:customer'])->group(function() {
+/* ================= CUSTOMER - PUBLIK (BISA DILIHAT TAMU) ================= */
+// Route ini ditaruh DI LUAR middleware supaya Tamu bisa lihat katalog & detail
+// Tanpa harus login dulu.
+Route::get('products', [ProductController::class,'index'])
+    ->name('products.index');
 
-    Route::get('products', [ProductController::class,'index'])
-        ->name('products.index');
+Route::get('products/{id}', [ProductController::class,'show'])
+    ->name('products.show');
 
-    Route::get('products/{id}', [ProductController::class,'show'])
-        ->name('products.show');
+
+/* ================= CUSTOMER - PRIVATE (MEMBER ONLY) ================= */
+// Route ini yang di-PROTEKSI.
+// Kalau Tamu klik tombol "Keranjang", dia akan mengakses route ini,
+// lalu dicegat Middleware -> Dilempar ke Login -> Muncul Notif.
+Route::middleware(['role:customer'])->group(function() {
 
     // --- KERANJANG ---
     Route::get('cart', [CartController::class,'index'])
@@ -60,11 +66,9 @@ Route::middleware(['auth','role:customer'])->group(function() {
     Route::post('cart/add/{id}', [CartController::class,'add'])
         ->name('cart.add');
 
-    // ROUTE TAMBAHAN: Untuk update jumlah (+/-) di keranjang
     Route::patch('cart/update/{id}', [CartController::class, 'update'])
         ->name('cart.update');
 
-    // ROUTE TAMBAHAN: Untuk hapus barang dari keranjang (opsional)
     Route::delete('cart/remove/{id}', [CartController::class, 'remove'])
         ->name('cart.remove');
 
