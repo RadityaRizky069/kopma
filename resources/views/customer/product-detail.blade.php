@@ -269,7 +269,7 @@
         padding: 15px;
         display: flex;
         gap: 16px;
-        /* Tambahan efek hover pada komentar */
+        /* Tambahan efek hover */
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         border: 1px solid transparent;
     }
@@ -280,15 +280,13 @@
         border-color: #f1f5f9;
     }
 
+    /* Link Avatar & User */
     .avatar-link {
         text-decoration: none;
         transition: transform 0.2s;
         display: block;
     }
-    
-    .avatar-link:hover {
-        transform: scale(1.1);
-    }
+    .avatar-link:hover { transform: scale(1.1); }
 
     .comment-avatar {
         width: 42px;
@@ -311,9 +309,7 @@
         object-fit: cover;
     }
 
-    .comment-content {
-        flex: 1;
-    }
+    .comment-content { flex: 1; }
 
     .comment-header {
         display: flex;
@@ -333,10 +329,7 @@
         gap: 6px;
     }
 
-    .comment-user-link:hover {
-        color: var(--primary);
-    }
-
+    .comment-user-link:hover { color: var(--primary); }
     .comment-user-link:hover .comment-user-name {
         text-decoration: underline;
         text-underline-offset: 3px;
@@ -387,14 +380,14 @@
 
 <div class="container-custom">
     
-    <!-- 1. TOMBOL KEMBALI (Animasi Masuk dari Atas) -->
+    <!-- 1. HEADER DENGAN ANIMASI TURUN -->
     <div class="header-nav animate__animated animate__fadeInDown">
         <a href="{{ route('products.index') }}" class="btn-back">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
 
-    <!-- 2. DETAIL PRODUK (Animasi Masuk dari Bawah) -->
+    <!-- 2. DETAIL PRODUK DENGAN ANIMASI NAIK -->
     <div class="product-main-card animate__animated animate__fadeInUp">
         <div class="product-img-col">
             @if($product->gambar)
@@ -425,7 +418,7 @@
         </div>
     </div>
 
-    <!-- 3. BAGIAN KOMENTAR (Animasi Muncul Bertahap) -->
+    <!-- 3. BAGIAN KOMENTAR -->
     <div class="comments-section animate__animated animate__fadeIn animate__delay-1s">
         
         <div class="section-head">
@@ -458,12 +451,13 @@
         </div>
         @endauth
 
-        <!-- Daftar Komentar (Cascading Animation) -->
+        <!-- Daftar Komentar (ANIMASI CASCADE) -->
         <div class="comment-list">
-            @forelse($product->comments as $index => $comment)
-            <div class="comment-card animate__animated animate__fadeInUp" style="animation-delay: {{ $index * 0.1 }}s; animation-fill-mode: both;">
+            @forelse($product->comments as $comment)
+            {{-- Loop variable $loop->index digunakan untuk delay animasi per item --}}
+            <div class="comment-card animate__animated animate__fadeInUp" style="animation-delay: {{ $loop->index * 0.1 }}s; animation-fill-mode: both;">
                 
-                {{-- AVATAR KLIK --}}
+                {{-- AVATAR LINK --}}
                 <a href="{{ url('/profile/' . $comment->user->id) }}" class="avatar-link" title="Lihat Profil">
                     <div class="comment-avatar">
                         @if($comment->user->avatar)
@@ -476,7 +470,7 @@
 
                 <div class="comment-content">
                     <div class="comment-header">
-                        {{-- NAMA USER KLIK --}}
+                        {{-- NAMA USER LINK --}}
                         <a href="{{ url('/profile/' . $comment->user->id) }}" class="comment-user-link" title="Kunjungi Profil {{ $comment->user->name }}">
                             <span class="comment-user-name">{{ $comment->user->name }}</span>
                             @if($comment->user->role === 'admin') 

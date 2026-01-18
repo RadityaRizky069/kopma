@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    // Tampilkan Halaman Edit Profil
+    public function show($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        return view('profile.show', compact('user'));
+    }
+
     public function edit()
     {
         return view('profile.edit', [
@@ -17,49 +22,45 @@ class ProfileController extends Controller
         ]);
     }
 
-    // Proses Update Profil
     public function update(Request $request)
     {
-        $user = Auth::user(); // Ambil data user yang sedang login
+        $user = Auth::user();
 
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
-            'password' => 'nullable|min:6|confirmed', // Optional ganti password
+            // SAYA TAMBAHKAN 'gif' DI SINI
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // SAYA TAMBAHKAN 'gif' DI SINI JUGA
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB buat GIF
+            'password' => 'nullable|min:6|confirmed',
         ]);
 
-        // 1. Update Nama & Email
         $user->name = $request->name;
         $user->email = $request->email;
 
-        // 2. Update Password (Jika diisi)
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
 
-        // 3. Update Foto Profil (Avatar)
+        // 1. Simpan Avatar (PP)
         if ($request->hasFile('avatar')) {
-            // Hapus foto lama jika ada (bukan foto default)
             if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
-
-            // Simpan foto baru
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
+            $user->avatar = $request->file('avatar')->store('avatars', 'public');
         }
 
-        $user->save(); // Simpan ke database
+        // 2. Simpan Banner
+        if ($request->hasFile('banner')) {
+            if ($user->banner && Storage::disk('public')->exists($user->banner)) {
+                Storage::disk('public')->delete($user->banner);
+            }
+            $user->banner = $request->file('banner')->store('banners', 'public');
+        }
+
+        $user->save();
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
-
-    public function show($id)
-{
-    // Cari user berdasarkan ID, jika tidak ada tampilkan 404
-    $user = \App\Models\User::findOrFail($id);
-    
-    return view('profile.show', compact('user'));
-}
 }

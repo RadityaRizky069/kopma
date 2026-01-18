@@ -3,14 +3,14 @@
 @section('title', 'Profil Pengguna - ' . $user->name)
 
 @section('content')
+{{-- Load Font, Icons, & Animate.css --}}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-{{-- Library Animasi --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <style>
     :root {
-        --primary: #10b981;
+        --primary: #10b981; 
         --primary-dark: #059669;
         --text-dark: #0f172a;
         --text-gray: #64748b;
@@ -35,32 +35,42 @@
         border-radius: 24px;
         overflow: hidden;
         border: 1px solid var(--border);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05); /* Shadow lebih lembut */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         position: relative;
         transition: transform 0.3s ease;
     }
 
-    /* BANNER HEADER */
+    /* BANNER HEADER (ANIMASI GIF-LIKE) */
     .profile-banner {
-        height: 180px;
-        background: linear-gradient(135deg, #10b981, #34d399);
+        height: 220px;
+        /* Default: Animasi Gradient bergerak */
+        background: linear-gradient(-45deg, #10b981, #34d399, #065f46, #047857);
+        background-size: 400% 400%;
+        animation: gradientBG 10s ease infinite;
         position: relative;
-        overflow: hidden;
+    }
+
+    /* Keyframes untuk membuat background bergerak seperti GIF */
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
     
-    .profile-banner::after {
+    /* Overlay pattern (hanya hiasan jika tidak ada gambar) */
+    .profile-banner.no-img::after {
         content: '';
         position: absolute;
         width: 100%;
         height: 100%;
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        opacity: 0.6;
+        opacity: 0.3;
     }
 
-    /* FOTO PROFIL DENGAN EFEK HOVER */
+    /* FOTO PROFIL */
     .profile-avatar-wrapper {
         position: absolute;
-        top: 120px;
+        top: 150px; /* Sesuaikan dengan tinggi banner */
         left: 50%;
         transform: translateX(-50%);
         width: 130px;
@@ -74,7 +84,7 @@
     }
 
     .profile-avatar-wrapper:hover {
-        transform: translateX(-50%) scale(1.05); /* Efek zoom saat hover */
+        transform: translateX(-50%) scale(1.05);
     }
 
     .profile-avatar {
@@ -100,7 +110,7 @@
     }
 
     .profile-avatar:hover img {
-        transform: scale(1.1); /* Gambar dalam juga zoom dikit */
+        transform: scale(1.1);
     }
 
     /* INFO USER */
@@ -115,7 +125,7 @@
         font-weight: 800;
         color: var(--text-dark);
         margin-bottom: 5px;
-        animation: fadeInDown 0.8s ease; /* Animasi Nama */
+        animation: fadeInDown 0.8s ease;
     }
 
     .user-email {
@@ -143,7 +153,7 @@
         color: #0369a1;
     }
 
-    /* STATISTIK / DETAIL */
+    /* STATISTIK */
     .profile-stats {
         display: flex;
         justify-content: center;
@@ -233,10 +243,13 @@
     {{-- Animasi Card Profil muncul dari bawah --}}
     <div class="profile-card animate__animated animate__fadeInUp">
         
-        <!-- Banner Hijau -->
-        <div class="profile-banner"></div>
+        <!-- BANNER HEADER -->
+        <!-- Jika user upload gambar (JPG/PNG/GIF), animasi CSS dimatikan dan gambar ditampilkan -->
+        <div class="profile-banner {{ !$user->banner ? 'no-img' : '' }}" 
+             style="{{ $user->banner ? 'background-image: url(' . asset('storage/' . $user->banner) . '); animation: none; background-size: cover;' : '' }}">
+        </div>
 
-        <!-- Foto Profil -->
+        <!-- FOTO PROFIL -->
         <div class="profile-avatar-wrapper animate__animated animate__zoomIn animate__delay-1s">
             <div class="profile-avatar">
                 @if($user->avatar)
@@ -247,7 +260,7 @@
             </div>
         </div>
 
-        <!-- Informasi User -->
+        <!-- INFORMASI USER -->
         <div class="profile-info">
             <h1 class="user-name">{{ $user->name }}</h1>
             <p class="user-email">{{ $user->email }}</p>
@@ -256,7 +269,7 @@
                 {{ $user->role == 'admin' ? 'Administrator' : 'Member KOPMA' }}
             </span>
 
-            <!-- Statistik Sederhana -->
+            <!-- STATISTIK -->
             <div class="profile-stats">
                 <div class="stat-item">
                     <span class="stat-value">{{ $user->created_at->format('d M Y') }}</span>
@@ -264,13 +277,14 @@
                 </div>
             </div>
 
-            <!-- Tombol Aksi -->
+            <!-- TOMBOL AKSI -->
             <div class="action-buttons">
+                <!-- Tombol Kembali menggunakan history.back() -->
                 <a href="javascript:history.back()" class="btn-back">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
 
-                {{-- Jika melihat profil sendiri, munculkan tombol edit --}}
+                {{-- Tombol Edit hanya muncul jika melihat profil sendiri --}}
                 @if(auth()->check() && auth()->id() == $user->id)
                     <a href="{{ route('profile.edit') }}" class="btn-edit">
                         <i class="bi bi-pencil-square"></i> Edit Profil
