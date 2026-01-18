@@ -95,12 +95,37 @@
 @csrf
 
 <label>Metode Pembayaran</label>
-<select name="metode_pembayaran" class="payment-select" required>
+<select name="metode_pembayaran" class="payment-select" required id="paymentMethod">
     <option disabled selected>Pilih</option>
     <option value="Transfer">Transfer</option>
     <option value="E-Wallet">E-Wallet</option>
     <option value="Tunai">Tunai</option>
+    <option value="Cicilan">Cicilan</option>
 </select>
+
+{{-- ================= CICILAN ================= --}}
+<div id="installmentBox"
+     style="display:none;
+            background:#fff7ed;
+            padding:15px;
+            border-radius:10px;
+            border:1px solid #fed7aa;
+            margin-bottom:15px;">
+    <b>🧾 Pembayaran Cicilan</b><br>
+    <small>Pilih jangka waktu cicilan</small>
+
+    <select name="installment_duration"
+            class="payment-select"
+            style="margin-top:8px;">
+        <option value="7">1 Minggu</option>
+        <option value="14">2 Minggu</option>
+        <option value="30">1 Bulan</option>
+        <option value="90">3 Bulan</option>
+        <option value="180">6 Bulan</option>
+        <option value="365">12 Bulan</option>
+    </select>
+</div>
+{{-- ========================================== --}}
 
 {{-- ================== POIN ================== --}}
 @auth
@@ -138,7 +163,7 @@
 </div>
 </section>
 
-{{-- ================= JS HITUNG POIN LIVE ================= --}}
+{{-- ================= JS POIN ================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const pointInput = document.querySelector('input[name="use_points"]');
@@ -160,6 +185,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const newTotal = originalTotal - discount;
         totalDisplay.innerText =
             'Rp ' + newTotal.toLocaleString('id-ID');
+    });
+});
+</script>
+
+{{-- ================= JS CICILAN ================= --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const paymentSelect = document.getElementById('paymentMethod');
+    const installmentBox = document.getElementById('installmentBox');
+
+    if (!paymentSelect || !installmentBox) return;
+
+    paymentSelect.addEventListener('change', function () {
+        installmentBox.style.display =
+            this.value === 'Cicilan' ? 'block' : 'none';
     });
 });
 </script>
