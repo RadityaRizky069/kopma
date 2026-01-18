@@ -76,7 +76,7 @@
     </div>
 
     <div>
-        <small>Subtotal</small>
+        <small>Subtotal</small><br>
         <b>Rp {{ number_format($subtotal,0,',','.') }}</b>
     </div>
 
@@ -102,13 +102,13 @@
     <option value="Tunai">Tunai</option>
 </select>
 
-{{-- ================== POIN (TAMBAHAN) ================== --}}
+{{-- ================== POIN ================== --}}
 @auth
 @if(auth()->user()->is_member && auth()->user()->points > 0)
 <div style="background:#f0fdf4;padding:15px;border-radius:10px;border:1px solid #86efac;margin-bottom:15px;">
     <b>🎯 Gunakan Poin</b><br>
     Poin tersedia: <b>{{ auth()->user()->points }}</b><br>
-    <small>1 poin = Rp 1.00</small>
+    <small>1 poin = Rp 100</small>
 
     <input type="number"
            name="use_points"
@@ -119,11 +119,14 @@
 </div>
 @endif
 @endauth
-{{-- ===================================================== --}}
+{{-- ========================================== --}}
 
 <div class="summary-total">
     <span>Total</span>
-    <span>Rp {{ number_format($grandTotal,0,',','.') }}</span>
+    <span id="totalDisplay"
+          data-total="{{ $grandTotal }}">
+        Rp {{ number_format($grandTotal,0,',','.') }}
+    </span>
 </div>
 
 <button class="btn-checkout">Selesaikan Pesanan</button>
@@ -134,4 +137,31 @@
 @endif
 </div>
 </section>
+
+{{-- ================= JS HITUNG POIN LIVE ================= --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const pointInput = document.querySelector('input[name="use_points"]');
+    const totalDisplay = document.getElementById('totalDisplay');
+
+    if (!pointInput || !totalDisplay) return;
+
+    const originalTotal = parseInt(totalDisplay.dataset.total);
+
+    pointInput.addEventListener('input', function () {
+        let points = parseInt(this.value) || 0;
+        let discount = points * 100;
+
+        if (discount > originalTotal) {
+            discount = originalTotal;
+            this.value = Math.floor(originalTotal / 100);
+        }
+
+        const newTotal = originalTotal - discount;
+        totalDisplay.innerText =
+            'Rp ' + newTotal.toLocaleString('id-ID');
+    });
+});
+</script>
+
 @endsection
