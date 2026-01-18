@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\CommentController;
 
 /* ================= HOME ================= */
 Route::get('/', [ProductController::class, 'home'])->name('home');
@@ -25,7 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth','role:admin'])
     ->prefix('admin')
     ->as('admin.')
-    ->group(function() {
+    ->group(function () {
 
         Route::get('/', [AdminController::class,'dashboard'])->name('dashboard');
 
@@ -45,42 +46,52 @@ Route::middleware(['auth','role:admin'])
         // 1. Halaman Laporan (View)
         Route::get('reports', [AdminController::class,'reports'])->name('reports');
         
-        // 2. Download Excel (Baru Ditambahkan)
+        // 2. Download Excel (PENTING: Ini yang kita perlukan)
         Route::get('reports/export', [AdminController::class, 'exportReports'])->name('reports.export');
-});
+    });
 
-/* ================= CUSTOMER - PUBLIK (BISA DILIHAT TAMU) ================= */
-// Route ini ditaruh DI LUAR middleware supaya Tamu bisa lihat katalog & detail
-// Tanpa harus login dulu.
+/* ================= CUSTOMER - PUBLIK ================= */
 Route::get('products', [ProductController::class,'index'])
     ->name('products.index');
 
 Route::get('products/{id}', [ProductController::class,'show'])
     ->name('products.show');
 
+/* ================= KOMENTAR (LOGIN REQUIRED) ================= */
+Route::middleware('auth')->group(function () {
 
-/* ================= CUSTOMER - PRIVATE (MEMBER ONLY) ================= */
-// Route ini yang di-PROTEKSI.
-// Kalau Tamu klik tombol "Keranjang", dia akan mengakses route ini,
-// lalu dicegat Middleware -> Dilempar ke Login -> Muncul Notif.
-Route::middleware(['role:customer'])->group(function() {
+    // buat komentar / reply
+    Route::post('/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
 
-    // --- KERANJANG ---
-    Route::get('cart', [CartController::class,'index'])
-        ->name('cart.index');
+    // edit komentar
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])
+        ->name('comments.update');
 
-    Route::post('cart/add/{id}', [CartController::class,'add'])
-        ->name('cart.add');
+    // hapus komentar
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+        ->name('comments.destroy');
 
-    Route::patch('cart/update/{id}', [CartController::class, 'update'])
-        ->name('cart.update');
+    // like & dislike
+    Route::post('/comments/{comment}/like', [CommentController::class, 'like'])
+        ->name('comments.like');
 
-    Route::delete('cart/remove/{id}', [CartController::class, 'remove'])
-        ->name('cart.remove');
+    Route::post('/comments/{comment}/dislike', [CommentController::class, 'dislike'])
+        ->name('comments.dislike');
+});
 
-    // --- TRANSAKSI ---
-    Route::post('checkout', [TransactionController::class,'checkout'])
-        ->name('checkout');
+/* ================= CUSTOMER - PRIVATE ================= */
+Route::middleware(['role:customer'])->group(function () {
+
+    Route::get('cart', [CartController::class,'index'])->name('cart.index');
+
+    Route::post('cart/add/{id}', [CartController::class,'add'])->name('cart.add');
+
+    Route::patch('cart/update/{id}', [CartController::class,'update'])->name('cart.update');
+
+    Route::delete('cart/remove/{id}', [CartController::class,'remove'])->name('cart.remove');
+
+    Route::post('checkout', [TransactionController::class,'checkout'])->name('checkout');
 
     Route::get('transactions', [TransactionController::class,'customerTransactions'])
         ->name('customer.transactions');
