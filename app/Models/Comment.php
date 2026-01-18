@@ -15,13 +15,15 @@ class Comment extends Model
         'dislikes'
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
-    public function replies()
-    {
-        return $this->hasMany(Comment::class, 'parent_id')->with('user');
-    }
+public function replies()
+{
+    return $this->hasMany(Comment::class, 'parent_id')
+        ->latest();
+}
+
 }

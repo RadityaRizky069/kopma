@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
+    // ================= CHECKOUT =================
     public function checkout(Request $request)
     {
         $request->validate([
@@ -28,22 +29,50 @@ class TransactionController extends Controller
         DB::beginTransaction();
         try {
             $totalHarga = 0;
+
             foreach ($cartItems as $item) {
                 $harga = $item->product->harga ?? $item->product->price;
                 $totalHarga += $harga * $item->jumlah;
             }
 
-            // 1. Simpan Transaksi Utama
+            // ================== HITUNG POIN (BELUM DIPOTONG) ==================
+            $user = Auth::user();
+            $usePoints = 0;
+            $potongan  = 0;
+
+            if ($user->is_member && $request->filled('use_points')) {
+                $usePoints = (int) $request->use_points;
+
+                // Tidak boleh melebihi poin user
+                if ($usePoints > $user->points) {
+                    $usePoints = $user->points;
+                }
+
+                // 1 poin = Rp 100
+                $potongan = $usePoints * 100;
+
+                // Potongan tidak boleh lebih dari total harga
+                if ($potongan > $totalHarga) {
+                    $potongan  = $totalHarga;
+                    $usePoints = floor($totalHarga / 100);
+                }
+
+                $totalHarga -= $potongan;
+            }
+
+            // ================= SIMPAN TRANSAKSI =================
             $transaction = Transaction::create([
                 'user_id'           => $userId,
                 'kode_transaksi'    => 'KOP-' . strtoupper(uniqid()),
                 'total_harga'       => $totalHarga,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status'            => 'menunggu',
-                'tanggal'           => now()
+                'tanggal'           => now(),
+                'used_points'       => $usePoints,
+                'discount'          => $potongan,
             ]);
 
-            // 2. Simpan Detail Transaksi
+            // ================= DETAIL TRANSAKSI =================
             foreach ($cartItems as $item) {
                 $harga = $item->product->harga ?? $item->product->price;
 
@@ -54,18 +83,15 @@ class TransactionController extends Controller
                     'price'          => $harga
                 ]);
 
-                // Potong Stok
-                $product = Product::find($item->produk_id);
-                if($product) {
-                    $product->decrement('stok', $item->jumlah);
-                }
+                Product::where('id', $item->produk_id)
+                    ->decrement('stok', $item->jumlah);
             }
 
-            // 3. Hapus Keranjang
             Cart::where('user_id', $userId)->delete();
 
             DB::commit();
-            return redirect()->route('customer.transactions')->with('success', 'Checkout berhasil!');
+            return redirect()->route('customer.transactions')
+                ->with('success', 'Checkout berhasil! Menunggu konfirmasi admin.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -73,37 +99,74 @@ class TransactionController extends Controller
         }
     }
 
+    // ================= TRANSAKSI CUSTOMER =================
     public function customerTransactions()
     {
-        $transactions = Transaction::where('user_id', Auth::id())->latest()->get();
+        $transactions = Transaction::where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
         return view('customer.transactions', compact('transactions'));
     }
 
+    // ================= TRANSAKSI ADMIN =================
     public function index()
     {
-        $transactions = Transaction::with('user')->latest()->get();
+        $transactions = Transaction::with('user')
+            ->latest()
+            ->get();
+
         return view('admin.transactions.index', compact('transactions'));
     }
 
-    // ================= UPDATE STATUS (TERIMA / TOLAK) =================
-    // Fungsi ini HARUS ada DI DALAM kurung kurawal class
+    // ================= UPDATE STATUS (ADMIN) =================
     public function updateStatus(Request $request, $id)
     {
-        // 1. Validasi input status yang dikirim dari tombol
         $request->validate([
             'status' => 'required|in:diproses,selesai,ditolak'
         ]);
 
-        // 2. Cari transaksi berdasarkan ID
-        $transaction = Transaction::findOrFail($id);
+        DB::beginTransaction();
+        try {
+            $transaction = Transaction::with('user')->findOrFail($id);
+            $user = $transaction->user;
 
-        // 3. Update status database
-        $transaction->update([
-            'status' => $request->status
-        ]);
+            // ================= STATUS SELESAI =================
+            if ($request->status === 'selesai') {
 
-        // 4. Redirect balik ke halaman sebelumnya
-        return redirect()->back()->with('success', 'Status berhasil diubah menjadi ' . $request->status);
+                if ($user && $user->is_member) {
+
+                    // POTONG POIN YANG DIPAKAI
+                    if ($transaction->used_points > 0) {
+                        $user->decrement('points', $transaction->used_points);
+                    }
+
+                    // TAMBAH POIN BARU
+                    // (Rp 10.000 = 1 poin)
+                    $earnedPoints = floor($transaction->total_harga / 10000);
+                    if ($earnedPoints > 0) {
+                        $user->increment('points', $earnedPoints);
+                    }
+                }
+            }
+
+            // ================= STATUS DITOLAK =================
+            // Tidak perlu balikin poin
+            // karena poin belum pernah dipotong
+
+            // UPDATE STATUS
+            $transaction->update([
+                'status' => $request->status
+            ]);
+
+            DB::commit();
+            return redirect()->back()
+                ->with('success', 'Status transaksi berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal update status: ' . $e->getMessage());
+        }
     }
-
-} // <--- PENUTUP CLASS HARUS DI SINI (PALING BAWAH)
+}

@@ -25,9 +25,10 @@ class Product extends Model
     // =========================
 public function comments()
 {
-    return $this->hasMany(Comment::class, 'product_id')
+    return $this->hasMany(Comment::class)
         ->whereNull('parent_id')
-        ->with(['user','replies']);
+        ->latest();
 }
+
 
 }
