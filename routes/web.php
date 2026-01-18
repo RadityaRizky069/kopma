@@ -31,17 +31,17 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
+        // Manajemen Produk & Kategori
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
 
+        // Manajemen Customer
         Route::get('customers', [AdminController::class, 'customers'])->name('customers');
 
-        // --- Transaksi ---
+        // --- Transaksi Admin ---
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions');
-        Route::post(
-            'transactions/{id}/update-status',
-            [TransactionController::class, 'updateStatus']
-        ) ->name('transactions.updateStatus');
+        Route::post('transactions/{id}/update-status', [TransactionController::class, 'updateStatus'])
+            ->name('transactions.updateStatus');
 
         // --- Laporan ---
         Route::get('reports', [AdminController::class, 'reports'])->name('reports');
@@ -54,7 +54,6 @@ Route::get('products/{id}', [ProductController::class, 'show'])->name('products.
 
 /* ================= KOMENTAR (LOGIN REQUIRED) ================= */
 Route::middleware('auth')->group(function () {
-
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');

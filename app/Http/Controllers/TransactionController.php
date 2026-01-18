@@ -131,15 +131,27 @@ class TransactionController extends Controller
 
         DB::beginTransaction();
         try {
+            // Load relasi items dan product untuk memastikan stok bisa balik
             $transaction = Transaction::with(['user', 'items.product'])->findOrFail($id);
             $user = $transaction->user;
 
             // Jika status lama sudah 'selesai' atau 'ditolak', cegah perubahan lagi agar data tidak double/ngaco
             if (in_array($transaction->status, ['selesai', 'ditolak'])) {
-                return redirect()->back()->with('error', 'Transaksi yang sudah selesai atau ditolak tidak dapat diubah lagi.');
+                return redirect()->back()->with('error', 'Status transaksi ini sudah tidak bisa diubah.');
             }
 
-            // ================= STATUS SELESAI =================
+            // --- LOGIKA JIKA DITOLAK (Penting agar stok balik) ---
+            if ($request->status === 'ditolak') {
+                foreach ($transaction->items as $item) {
+                    // Gunakan model Product untuk menambah stok kembali
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $product->increment('stok', $item->quantity);
+                    }
+                }
+            }
+
+            // --- LOGIKA JIKA SELESAI (Poin Member) ---
             if ($request->status === 'selesai') {
                 if ($user && $user->is_member) {
                     // 1. Potong poin yang dipakai saat checkout (Poin baru benar-benar hilang saat transaksi selesai)
@@ -155,27 +167,17 @@ class TransactionController extends Controller
                 }
             }
 
-            // ================= STATUS DITOLAK (PENTING: BALIKIN STOK) =================
-            if ($request->status === 'ditolak') {
-                foreach ($transaction->items as $item) {
-                    // Tambahkan kembali stok yang tadi dikurangi saat checkout
-                    Product::where('id', $item->product_id)->increment('stok', $item->quantity);
-                }
-            }
-
             // UPDATE STATUS KE DATABASE
             $transaction->update([
                 'status' => $request->status
             ]);
 
             DB::commit();
-            return redirect()->back()
-                ->with('success', 'Status transaksi berhasil diperbarui.');
+            return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Gagal update status: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memproses: ' . $e->getMessage());
         }
     }
 }

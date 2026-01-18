@@ -16,6 +16,7 @@
         min-height: 100vh;
     }
 
+    /* Memastikan Popup SweetAlert di paling atas */
     .swal2-container {
         z-index: 99999 !important;
     }
@@ -97,12 +98,14 @@
     .user-info { display: flex; align-items: center; gap: 10px; margin-top: 8px; color: #64748b; font-size: 13px; }
     .price-text { font-family: 'Inter', sans-serif; font-weight: 700; color: #16a34a; font-size: 15px; }
 
+    /* Badge Status */
     .badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; }
     .badge-waiting { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
     .badge-process { background: #eff6ff; color: #0369a1; border: 1px solid #bae6fd; }
     .badge-success { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
     .badge-reject  { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
 
+    /* Button Action */
     .btn-action { height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; padding: 0 15px; gap: 8px; }
     .btn-accept { background: #dcfce7; color: #166534; }
     .btn-accept:hover { background: #22c55e; color: white; transform: translateY(-1px); }
@@ -113,7 +116,7 @@
 
     .avatar-circle { width: 24px; height: 24px; background: #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; }
 
-    /* Notifikasi Animasi Animasi */
+    /* Notifikasi Animasi Kanan Bawah */
     .order-notification {
         position: fixed;
         bottom: 30px;
@@ -156,7 +159,7 @@
 </style>
 
 <div class="page-container">
-    {{-- ALERT PESAN --}}
+    {{-- ALERT PESAN LARAVEL --}}
     @if(session('success'))
         <script>
             Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
@@ -168,7 +171,7 @@
         </script>
     @endif
 
-    {{-- NOTIFIKASI PESANAN BARU --}}
+    {{-- NOTIFIKASI PESANAN BARU (FLOAT) --}}
     @php
         $pendingCount = $transactions->where('status', 'menunggu')->count();
     @endphp
@@ -222,7 +225,7 @@
                             @if($item->items && $item->items->count() > 0)
                                 <i class="fas fa-shopping-basket"></i> {{ $item->items->count() }} jenis produk
                             @else
-                                <i class="fas fa-exclamation-triangle text-warning"></i> Detail produk tidak terbaca
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Detail tidak tersedia
                             @endif
                         </div>
                         <div class="user-info">
@@ -255,23 +258,23 @@
                         @if(in_array($status, ['menunggu', 'diproses']))
                         <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST" id="form-status-{{ $item->id }}">
                             @csrf
+                            {{-- Input Hidden untuk mengirim status ke Controller --}}
                             <input type="hidden" name="status" id="input-status-{{ $item->id }}">
+                            
                             <div style="display: flex; gap: 8px; justify-content: center;">
                                 @if($status == 'menunggu')
                                     <button type="button" class="btn-action btn-accept" onclick="confirmUpdate({{ $item->id }}, 'diproses')" title="Terima Pesanan">
-                                        <i class="fas fa-check"></i> Terima
-                                    </button>
-                                    <button type="button" class="btn-action btn-reject" onclick="confirmUpdate({{ $item->id }}, 'ditolak')" title="Tolak Pesanan">
-                                        <i class="fas fa-times"></i> Tolak
+                                        <i class="fas fa-check"></i>
                                     </button>
                                 @elseif($status == 'diproses')
                                     <button type="button" class="btn-action btn-finish" onclick="confirmUpdate({{ $item->id }}, 'selesai')" title="Selesaikan Pesanan">
-                                        <i class="fas fa-flag-checkered"></i> Selesai
-                                    </button>
-                                    <button type="button" class="btn-action btn-reject" onclick="confirmUpdate({{ $item->id }}, 'ditolak')" title="Batalkan Pesanan">
-                                        <i class="fas fa-times"></i> Tolak
+                                        <i class="fas fa-flag-checkered"></i>
                                     </button>
                                 @endif
+
+                                <button type="button" class="btn-action btn-reject" onclick="confirmUpdate({{ $item->id }}, 'ditolak')" title="Tolak Pesanan">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                         </form>
                         @else
@@ -281,7 +284,10 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 50px; color: #94a3b8;">Belum ada pesanan masuk.</td>
+                    <td colspan="6" style="text-align: center; padding: 60px; color: #94a3b8; background: white; border-radius: 16px;">
+                        <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>Belum ada pesanan masuk.</p>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
@@ -291,28 +297,40 @@
 
 <script>
     function confirmUpdate(id, statusValue) {
+        // Ambil elemen form dan input hidden berdasarkan ID unik
+        const targetForm = document.getElementById('form-status-' + id);
+        const statusInput = document.getElementById('input-status-' + id);
+
+        if (!targetForm || !statusInput) {
+            console.error("Elemen form atau input tidak ditemukan!");
+            return;
+        }
+
         let titleText = 'Konfirmasi';
-        let bodyText = 'Apakah Anda yakin?';
+        let bodyText = 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
         let confirmColor = '#3b82f6';
+        let iconType = 'question';
 
         if (statusValue === 'diproses') {
             titleText = 'Terima Pesanan?';
-            bodyText = 'Status akan berubah menjadi "Diproses".';
+            bodyText = 'Status transaksi akan berubah menjadi "Diproses".';
             confirmColor = '#22c55e'; 
         } else if (statusValue === 'ditolak') {
             titleText = 'Tolak Pesanan?';
-            bodyText = 'Pesanan akan dibatalkan dan STOK AKAN DIKEMBALIKAN.';
+            bodyText = 'Pesanan akan dibatalkan secara permanen dan STOK AKAN DIKEMBALIKAN.';
             confirmColor = '#ef4444'; 
+            iconType = 'warning';
         } else if (statusValue === 'selesai') {
             titleText = 'Selesaikan Pesanan?';
-            bodyText = 'Pastikan pesanan sudah sampai ke customer.';
+            bodyText = 'Pastikan pesanan sudah diterima customer. Poin akan diberikan otomatis.';
             confirmColor = '#3b82f6'; 
+            iconType = 'info';
         }
 
         Swal.fire({
             title: titleText,
             text: bodyText,
-            icon: statusValue === 'ditolak' ? 'warning' : 'question',
+            icon: iconType,
             showCancelButton: true,
             confirmButtonColor: confirmColor,
             cancelButtonColor: '#64748b',
@@ -321,18 +339,18 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                // Set value ke input hidden yang spesifik untuk ID ini
-                document.getElementById('input-status-' + id).value = statusValue;
+                // Set nilai status ke input hidden
+                statusInput.value = statusValue;
                 
-                // Tampilkan loading
+                // Tampilkan loading spinner agar user tahu proses sedang berjalan
                 Swal.fire({
-                    title: 'Memproses...',
+                    title: 'Sedang Memproses...',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); }
                 });
 
-                // Submit form yang spesifik untuk ID ini
-                document.getElementById('form-status-' + id).submit();
+                // Submit form secara manual
+                targetForm.submit();
             }
         });
     }
