@@ -5,6 +5,8 @@
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+{{-- Library Animasi --}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <style>
     :root {
@@ -33,8 +35,9 @@
         border-radius: 24px;
         overflow: hidden;
         border: 1px solid var(--border);
-        box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05); /* Shadow lebih lembut */
         position: relative;
+        transition: transform 0.3s ease;
     }
 
     /* BANNER HEADER */
@@ -51,9 +54,10 @@
         width: 100%;
         height: 100%;
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.6;
     }
 
-    /* FOTO PROFIL */
+    /* FOTO PROFIL DENGAN EFEK HOVER */
     .profile-avatar-wrapper {
         position: absolute;
         top: 120px;
@@ -64,7 +68,13 @@
         border-radius: 50%;
         padding: 5px;
         background: white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        z-index: 10;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-avatar-wrapper:hover {
+        transform: translateX(-50%) scale(1.05); /* Efek zoom saat hover */
     }
 
     .profile-avatar {
@@ -86,6 +96,11 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .profile-avatar:hover img {
+        transform: scale(1.1); /* Gambar dalam juga zoom dikit */
     }
 
     /* INFO USER */
@@ -100,11 +115,13 @@
         font-weight: 800;
         color: var(--text-dark);
         margin-bottom: 5px;
+        animation: fadeInDown 0.8s ease; /* Animasi Nama */
     }
 
     .user-email {
         color: var(--text-gray);
         font-size: 0.95rem;
+        animation: fadeIn 1s ease;
     }
 
     .user-role-badge {
@@ -118,6 +135,7 @@
         text-transform: uppercase;
         margin-top: 15px;
         letter-spacing: 0.5px;
+        animation: fadeInUp 1s ease;
     }
     
     .user-role-badge.admin {
@@ -136,10 +154,16 @@
         width: 80%;
         margin-left: auto;
         margin-right: auto;
+        animation: fadeIn 1.2s ease;
     }
 
     .stat-item {
         text-align: center;
+        transition: transform 0.2s;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-3px);
     }
 
     .stat-value {
@@ -162,6 +186,7 @@
         display: flex;
         justify-content: center;
         gap: 15px;
+        animation: fadeInUp 1.4s ease;
     }
 
     .btn-back {
@@ -174,11 +199,13 @@
         padding: 10px 20px;
         border-radius: 12px;
         transition: 0.3s;
+        background: #f1f5f9;
     }
 
     .btn-back:hover {
         background: #e2e8f0;
         color: var(--text-dark);
+        transform: translateX(-3px);
     }
     
     .btn-edit {
@@ -190,22 +217,27 @@
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
         transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
     
     .btn-edit:hover {
         background: var(--primary-dark);
         transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
     }
 </style>
 
 <div class="profile-container">
+    {{-- Animasi Card Profil muncul dari bawah --}}
     <div class="profile-card animate__animated animate__fadeInUp">
         
         <!-- Banner Hijau -->
         <div class="profile-banner"></div>
 
         <!-- Foto Profil -->
-        <div class="profile-avatar-wrapper">
+        <div class="profile-avatar-wrapper animate__animated animate__zoomIn animate__delay-1s">
             <div class="profile-avatar">
                 @if($user->avatar)
                     <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}">
@@ -230,7 +262,6 @@
                     <span class="stat-value">{{ $user->created_at->format('d M Y') }}</span>
                     <span class="stat-label">Bergabung Sejak</span>
                 </div>
-                <!-- Bisa ditambah statistik lain seperti Total Transaksi jika mau -->
             </div>
 
             <!-- Tombol Aksi -->
@@ -242,7 +273,7 @@
                 {{-- Jika melihat profil sendiri, munculkan tombol edit --}}
                 @if(auth()->check() && auth()->id() == $user->id)
                     <a href="{{ route('profile.edit') }}" class="btn-edit">
-                        <i class="bi bi-pencil-square me-1"></i> Edit Profil
+                        <i class="bi bi-pencil-square"></i> Edit Profil
                     </a>
                 @endif
             </div>

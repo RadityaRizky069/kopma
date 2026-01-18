@@ -1,9 +1,10 @@
 @extends('layouts.main')
 
 @section('content')
-{{-- Load Font & Icons --}}
+{{-- Load Font, Icons, & Animate.css --}}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <style>
     /* --- GLOBAL VARIABLES --- */
@@ -201,7 +202,9 @@
         justify-content: center;
         font-size: 1.1rem;
         flex-shrink: 0;
-        overflow: hidden; /* PENTING BIAR FOTO BULAT */
+        overflow: hidden;
+        border: 2px solid #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
     
     .user-avatar-circle img {
@@ -257,24 +260,34 @@
     .comment-list {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 20px;
     }
 
     .comment-card {
         background: white;
         border-radius: 16px;
-        padding: 0;
+        padding: 15px;
         display: flex;
         gap: 16px;
+        /* Tambahan efek hover pada komentar */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid transparent;
     }
 
-    /* Avatar Link Wrapper */
+    .comment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        border-color: #f1f5f9;
+    }
+
     .avatar-link {
         text-decoration: none;
         transition: transform 0.2s;
+        display: block;
     }
+    
     .avatar-link:hover {
-        transform: scale(1.05);
+        transform: scale(1.1);
     }
 
     .comment-avatar {
@@ -289,7 +302,7 @@
         font-weight: 700;
         font-size: 0.9rem;
         flex-shrink: 0;
-        overflow: hidden; /* PENTING BIAR FOTO BULAT */
+        overflow: hidden;
     }
     
     .comment-avatar img {
@@ -309,25 +322,23 @@
         margin-bottom: 6px;
     }
 
-    /* --- STYLE NAMA USER YANG BISA DIKLIK --- */
     .comment-user-link {
         font-weight: 700;
         color: var(--text-dark);
         font-size: 0.95rem;
         text-decoration: none;
         transition: all 0.2s;
-        position: relative;
         display: inline-flex;
         align-items: center;
         gap: 6px;
     }
 
     .comment-user-link:hover {
-        color: var(--primary); /* Berubah hijau saat hover */
+        color: var(--primary);
     }
 
     .comment-user-link:hover .comment-user-name {
-        text-decoration: underline; /* Garis bawah saat hover */
+        text-decoration: underline;
         text-underline-offset: 3px;
     }
 
@@ -376,15 +387,15 @@
 
 <div class="container-custom">
     
-    <!-- 1. HEADER TOMBOL KEMBALI -->
-    <div class="header-nav">
+    <!-- 1. TOMBOL KEMBALI (Animasi Masuk dari Atas) -->
+    <div class="header-nav animate__animated animate__fadeInDown">
         <a href="{{ route('products.index') }}" class="btn-back">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
 
-    <!-- 2. PRODUCT CARD -->
-    <div class="product-main-card">
+    <!-- 2. DETAIL PRODUK (Animasi Masuk dari Bawah) -->
+    <div class="product-main-card animate__animated animate__fadeInUp">
         <div class="product-img-col">
             @if($product->gambar)
                 <img src="{{ asset('storage/' . $product->gambar) }}" alt="{{ $product->nama_produk }}">
@@ -414,15 +425,15 @@
         </div>
     </div>
 
-    <!-- 3. BAGIAN KOMENTAR -->
-    <div class="comments-section">
+    <!-- 3. BAGIAN KOMENTAR (Animasi Muncul Bertahap) -->
+    <div class="comments-section animate__animated animate__fadeIn animate__delay-1s">
         
         <div class="section-head">
             <h3>Ulasan Pembeli</h3>
             <span class="count-pill">{{ $product->comments->count() }}</span>
         </div>
 
-        <!-- Form Input Komentar (Tampilkan Foto User Login) -->
+        <!-- Form Input -->
         @auth
         <div class="comment-form-wrapper">
             <div class="user-avatar-circle">
@@ -447,10 +458,10 @@
         </div>
         @endauth
 
-        <!-- Daftar Komentar (Tampilkan Foto User Lain) -->
+        <!-- Daftar Komentar (Cascading Animation) -->
         <div class="comment-list">
-            @forelse($product->comments as $comment)
-            <div class="comment-card">
+            @forelse($product->comments as $index => $comment)
+            <div class="comment-card animate__animated animate__fadeInUp" style="animation-delay: {{ $index * 0.1 }}s; animation-fill-mode: both;">
                 
                 {{-- AVATAR KLIK --}}
                 <a href="{{ url('/profile/' . $comment->user->id) }}" class="avatar-link" title="Lihat Profil">

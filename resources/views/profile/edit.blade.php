@@ -3,9 +3,23 @@
 @section('title', 'Edit Profil')
 
 @section('content')
+{{-- Load Animate.css --}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
 <style>
     .profile-section { padding: 60px 0; background: #f8fafc; min-height: 85vh; }
-    .profile-card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; overflow: hidden; max-width: 800px; margin: auto; }
+    
+    .profile-card { 
+        background: white; 
+        border-radius: 20px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+        border: 1px solid #e2e8f0; 
+        overflow: hidden; 
+        max-width: 800px; 
+        margin: auto; 
+        /* Transisi halus saat di hover */
+        transition: transform 0.3s ease;
+    }
     
     /* Header Background */
     .profile-header { height: 150px; background: linear-gradient(135deg, #10b981, #059669); position: relative; }
@@ -20,6 +34,13 @@
         transform: translateX(-50%);
         padding: 5px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        z-index: 10;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .avatar-wrapper:hover {
+        transform: translateX(-50%) scale(1.05); /* Efek zoom saat hover */
     }
     
     .avatar-img {
@@ -27,10 +48,9 @@
         border-radius: 50%;
         object-fit: cover;
         background: #f1f5f9;
-        cursor: pointer;
         transition: 0.3s;
     }
-    .avatar-img:hover { filter: brightness(0.9); }
+    .avatar-img:hover { filter: brightness(0.95); }
 
     /* Input File Sembunyi */
     #avatarInput { display: none; }
@@ -42,7 +62,7 @@
     .form-control:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
     
     .btn-save { background: #10b981; color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; display: block; width: 100%; margin-top: 20px; }
-    .btn-save:hover { background: #059669; transform: translateY(-2px); }
+    .btn-save:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
 
     .role-badge { 
         text-align: center; 
@@ -62,10 +82,12 @@
             @csrf
             @method('PUT')
 
-            <div class="profile-card">
+            {{-- Animasi Card: Muncul dari bawah --}}
+            <div class="profile-card animate__animated animate__fadeInUp">
                 <!-- Header Warna Hijau -->
                 <div class="profile-header">
-                    <div class="avatar-wrapper" onclick="document.getElementById('avatarInput').click()">
+                    {{-- Animasi Avatar: Zoom In dengan delay sedikit --}}
+                    <div class="avatar-wrapper animate__animated animate__zoomIn animate__delay-1s" onclick="document.getElementById('avatarInput').click()">
                         @if($user->avatar)
                             <img src="{{ asset('storage/' . $user->avatar) }}" class="avatar-img" id="avatarPreview">
                         @else
@@ -82,15 +104,17 @@
                 </div>
 
                 <div class="profile-body">
-                    <div class="role-badge">
+                    {{-- Animasi Badge: Muncul dari atas --}}
+                    <div class="role-badge animate__animated animate__fadeInDown animate__delay-1s">
                         <span>{{ $user->role }} Account</span>
                     </div>
 
-                    <div style="text-align: center; margin-bottom: 30px; color: #94a3b8; font-size: 13px;">
+                    <div style="text-align: center; margin-bottom: 30px; color: #94a3b8; font-size: 13px;" class="animate__animated animate__fadeIn animate__delay-1s">
                         Klik foto di atas untuk mengganti gambar profil
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    {{-- Animasi Form Utama --}}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;" class="animate__animated animate__fadeInUp animate__delay-1s">
                         <div>
                             <label class="form-label">Nama Lengkap</label>
                             <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
@@ -101,7 +125,8 @@
                         </div>
                     </div>
 
-                    <div style="background: #fff7ed; padding: 20px; border-radius: 12px; border: 1px dashed #fdba74; margin-bottom: 20px;">
+                    {{-- Animasi Form Password (Delay lebih lama) --}}
+                    <div style="background: #fff7ed; padding: 20px; border-radius: 12px; border: 1px dashed #fdba74; margin-bottom: 20px;" class="animate__animated animate__fadeInUp animate__delay-2s">
                         <h5 style="margin: 0 0 15px 0; font-size: 14px; color: #c2410c;">Ganti Password (Opsional)</h5>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div>
@@ -115,7 +140,8 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-save">Simpan Perubahan</button>
+                    {{-- Animasi Tombol --}}
+                    <button type="submit" class="btn-save animate__animated animate__fadeInUp animate__delay-2s">Simpan Perubahan</button>
                 </div>
             </div>
         </form>
