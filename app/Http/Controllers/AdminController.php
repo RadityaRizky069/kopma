@@ -40,12 +40,7 @@ class AdminController extends Controller
     // ================= LAPORAN =================
     public function reports(Request $request)
     {
-        $type  = $request->input('type', 'monthly');
-        $month = (int) $request->input('month', now()->month);
-        $year  = (int) $request->input('year', now()->year);
-        $date  = $request->input('date', now()->toDateString());
-
-        // ================= AMBIL BULAN & TAHUN YANG ADA DATA =================
+        // 1. Ambil semua periode (Bulan & Tahun) yang benar-benar punya data transaksi
         $availablePeriods = DB::table('transaksi')
             ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month')
             ->groupByRaw('YEAR(created_at), MONTH(created_at)')
@@ -53,27 +48,44 @@ class AdminController extends Controller
             ->orderBy('month', 'desc')
             ->get();
 
-        // ================= VALIDASI BULAN (ANTI ERROR) =================
-        if ($type === 'monthly') {
-            $isValid = $availablePeriods
-                ->where('year', $year)
-                ->where('month', $month)
-                ->count();
+        // 2. Ambil input awal
+        $type  = $request->input('type', 'monthly');
+        $date  = $request->input('date', now()->toDateString());
+        
+        // Default Year & Month diambil dari data terbaru yang tersedia
+        $latestData = $availablePeriods->first();
+        $defaultYear = $latestData ? (int)$latestData->year : now()->year;
+        $defaultMonth = $latestData ? (int)$latestData->month : now()->month;
 
-            if (!$isValid) {
-                // fallback ke bulan terbaru yang ada data
-                $latest = $availablePeriods->first();
-                if ($latest) {
-                    $month = (int) $latest->month;
-                    $year  = (int) $latest->year;
+        $year  = (int) $request->input('year', $defaultYear);
+        $month = (int) $request->input('month', $defaultMonth);
+
+        // 3. VALIDASI: Pastikan pilihan user ada datanya (Anti-Kosong)
+        if ($type === 'monthly') {
+            $check = $availablePeriods->where('year', $year)->where('month', $month)->first();
+            if (!$check) {
+                // Jika user pilih tahun X tapi bulannya ga ada data, 
+                // cari bulan terakhir yang tersedia di tahun tersebut
+                $lastInYear = $availablePeriods->where('year', $year)->first();
+                if ($lastInYear) {
+                    $month = (int) $lastInYear->month;
+                } else {
+                    // Jika tahunnya pun ga ada data, lari ke data terbaru yang pernah ada
+                    $year = $defaultYear;
+                    $month = $defaultMonth;
                 }
+            }
+        } elseif ($type === 'yearly') {
+            $checkYear = $availablePeriods->where('year', $year)->first();
+            if (!$checkYear) {
+                $year = $defaultYear;
             }
         }
 
+        // 4. Query utama transaksi
         if (!Schema::hasTable('transaksi')) {
             $transactions = collect();
         } else {
-
             $query = DB::table('transaksi')
                 ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
                 ->leftJoin('detail_transaksi', 'transaksi.id', '=', 'detail_transaksi.transaction_id')
@@ -96,21 +108,18 @@ class AdminController extends Controller
                 )
                 ->orderBy('transaksi.created_at', 'desc');
 
-            // ================= FILTER =================
+            // Eksekusi Filter
             if ($type === 'daily') {
                 $query->whereDate('transaksi.created_at', $date);
-            }
-            elseif ($type === 'weekly') {
+            } elseif ($type === 'weekly') {
                 $query->whereBetween('transaksi.created_at', [
                     Carbon::now()->startOfWeek(),
                     Carbon::now()->endOfWeek()
                 ]);
-            }
-            elseif ($type === 'monthly') {
+            } elseif ($type === 'monthly') {
                 $query->whereMonth('transaksi.created_at', $month)
                       ->whereYear('transaksi.created_at', $year);
-            }
-            elseif ($type === 'yearly') {
+            } elseif ($type === 'yearly') {
                 $query->whereYear('transaksi.created_at', $year);
             }
 
@@ -162,21 +171,18 @@ class AdminController extends Controller
             )
             ->orderBy('transaksi.created_at', 'desc');
 
-        // FILTER SAMA DENGAN VIEW
+        // Filter harus sama dengan view agar data sinkron
         if ($type === 'daily') {
             $query->whereDate('transaksi.created_at', $date);
-        }
-        elseif ($type === 'weekly') {
+        } elseif ($type === 'weekly') {
             $query->whereBetween('transaksi.created_at', [
                 Carbon::now()->startOfWeek(),
                 Carbon::now()->endOfWeek()
             ]);
-        }
-        elseif ($type === 'monthly') {
+        } elseif ($type === 'monthly') {
             $query->whereMonth('transaksi.created_at', $month)
                   ->whereYear('transaksi.created_at', $year);
-        }
-        elseif ($type === 'yearly') {
+        } elseif ($type === 'yearly') {
             $query->whereYear('transaksi.created_at', $year);
         }
 
@@ -192,15 +198,9 @@ class AdminController extends Controller
 
         $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
-
-            fputcsv($file, [
-                'Tanggal Transaksi',
-                'Nama Customer',
-                'Nama Produk',
-                'Jumlah Produk',
-                'Status',
-                'Total Harga'
-            ]);
+            
+            // Header CSV
+            fputcsv($file, ['Tanggal Transaksi', 'Nama Customer', 'Nama Produk', 'Jumlah Produk', 'Status', 'Total Harga']);
 
             foreach ($transactions as $row) {
                 fputcsv($file, [
