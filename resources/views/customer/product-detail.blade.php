@@ -1,287 +1,481 @@
 @extends('layouts.main')
 
 @section('content')
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{{-- Load Font & Icons --}}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
+    /* --- GLOBAL VARIABLES --- */
     :root {
-        --primary-green: #10b981; 
-        --dark-green: #065f46;
-        --soft-green: #ecfdf5;
-        --border-color: #f1f5f9;
-        --text-main: #1e293b;
-        --text-muted: #64748b;
+        --primary: #10b981; 
+        --primary-dark: #059669;
+        --text-dark: #0f172a;
+        --text-gray: #64748b;
+        --bg-soft: #f8fafc;
+        --border: #e2e8f0;
     }
 
     body {
         font-family: 'Inter', sans-serif;
+        color: var(--text-dark);
         background-color: #ffffff;
-        color: var(--text-main);
     }
 
-    .product-info-card {
-        border: 1px solid var(--border-color);
-        border-radius: 16px;
-        padding: 24px;
-        background: #fff;
-        margin-bottom: 40px;
+    .container-custom {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
     }
 
-    .price-badge {
-        display: inline-block;
-        padding: 6px 16px;
-        background-color: var(--soft-green);
-        color: var(--primary-green);
-        border-radius: 99px;
-        font-weight: 700;
-        font-size: 1.1rem;
+    /* --- HEADER (TOMBOL KEMBALI) --- */
+    .header-nav {
+        margin-bottom: 30px;
     }
 
-    .section-title {
-        font-weight: 700;
-        font-size: 1.25rem;
-        margin-bottom: 2rem;
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-gray);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.3s;
+        padding: 8px 16px;
+        border-radius: 50px;
+        background: white;
+        border: 1px solid transparent;
+    }
+
+    .btn-back:hover {
+        color: var(--primary);
+        background: var(--bg-soft);
+        border-color: var(--border);
+        transform: translateX(-3px);
+    }
+
+    /* --- PRODUCT CARD (BAGIAN ATAS) --- */
+    .product-main-card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        overflow: hidden;
         display: flex;
+        flex-wrap: wrap;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        margin-bottom: 60px;
+    }
+
+    .product-img-col {
+        flex: 1;
+        min-width: 320px;
+        background: var(--bg-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .product-img-col img {
+        width: 100%;
+        max-width: 320px;
+        height: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.08));
+        transition: transform 0.3s;
+    }
+
+    .product-img-col img:hover { transform: scale(1.05); }
+
+    .product-info-col {
+        flex: 1.3;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .badge-label {
+        background: #dcfce7;
+        color: var(--primary-dark);
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 6px 12px;
+        border-radius: 8px;
+        width: fit-content;
+        margin-bottom: 15px;
+        letter-spacing: 0.5px;
+    }
+
+    .product-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        line-height: 1.1;
+        letter-spacing: -0.5px;
+    }
+
+    .product-price {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 25px;
+    }
+
+    .product-desc {
+        color: var(--text-gray);
+        line-height: 1.7;
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .btn-add-cart {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        display: inline-flex;
         align-items: center;
         gap: 10px;
     }
 
-    .comment-input-container {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 3rem;
+    .btn-add-cart:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
     }
 
-    .user-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+    /* --- BAGIAN KOMENTAR --- */
+    .comments-section {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .section-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-head h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .count-pill {
+        background: var(--text-dark);
         color: white;
+        font-size: 0.75rem;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    /* Input Komentar */
+    .comment-form-wrapper {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+
+    .user-avatar-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a7f3d0, #34d399);
+        color: #064e3b;
+        font-weight: 700;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
+        font-size: 1.1rem;
         flex-shrink: 0;
+        overflow: hidden; /* PENTING BIAR FOTO BULAT */
     }
-
-    .custom-textarea {
+    
+    .user-avatar-circle img {
         width: 100%;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 16px;
-        font-size: 0.9rem;
-        background: #f8fafc;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .comment-box {
+        flex-grow: 1;
+        position: relative;
+    }
+
+    .comment-textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: #fdfdfd;
+        border-radius: 16px;
+        padding: 15px;
+        min-height: 100px;
         resize: none;
+        font-family: inherit;
+        transition: 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
-    .custom-textarea:focus {
+    .comment-textarea:focus {
         outline: none;
-        border-color: var(--primary-green);
-        background: #fff;
-        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
     }
 
-    .btn-send {
-        background-color: var(--primary-green);
+    .btn-post-comment {
+        margin-top: 10px;
+        background: var(--text-dark);
         color: white;
         border: none;
-        padding: 8px 24px;
-        border-radius: 8px;
+        padding: 10px 24px;
+        border-radius: 10px;
         font-weight: 600;
         font-size: 0.85rem;
-        margin-top: 10px;
+        cursor: pointer;
+        transition: 0.2s;
         float: right;
     }
 
-    .comment-item {
+    .btn-post-comment:hover {
+        background: black;
+    }
+
+    /* List Komentar */
+    .comment-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .comment-card {
+        background: white;
+        border-radius: 16px;
+        padding: 0;
         display: flex;
         gap: 16px;
-        padding: 24px 0;
-        border-bottom: 1px solid var(--border-color);
     }
 
-    .comment-author {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--text-main);
-    }
-
-    .comment-meta {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin-left: 8px;
-    }
-
-    .admin-tag {
-        background: #fee2e2;
-        color: #ef4444;
-        font-size: 0.65rem;
+    .comment-avatar {
+        width: 42px;
+        height: 42px;
+        background: #f1f5f9;
+        color: var(--text-gray);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        margin-right: 8px;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        overflow: hidden; /* PENTING BIAR FOTO BULAT */
+    }
+    
+    .comment-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .comment-body {
-        margin-top: 6px;
+    .comment-content {
+        flex: 1;
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+    }
+
+    .comment-user {
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .comment-time {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .comment-text {
+        color: #475569;
+        font-size: 0.95rem;
         line-height: 1.6;
-        color: #334155;
-        font-size: 0.92rem;
+        margin-bottom: 12px;
     }
 
-    .interaction-bar {
+    .comment-actions {
         display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-top: 12px;
+        gap: 15px;
     }
-
-    .btn-interact {
-        background: none;
-        border: none;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: var(--text-muted);
-        font-size: 0.8rem;
-    }
-
-    .btn-interact:hover { color: var(--primary-green); }
-    .btn-interact.active { color: var(--primary-green); font-weight: 600; }
 
     .action-link {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        cursor: pointer;
         background: none;
         border: none;
         padding: 0;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: 0.2s;
     }
 
-    .action-link:hover { color: var(--primary-green); }
-    .delete-link:hover { color: #ef4444; }
+    .action-link:hover { color: var(--primary); }
+    .action-link.active { color: var(--primary); }
+    .action-link.delete:hover { color: #ef4444; }
+
+    /* Responsif */
+    @media (max-width: 768px) {
+        .product-img-col { min-height: 250px; padding: 20px; }
+        .product-info-col { padding: 30px 20px; }
+        .product-title { font-size: 1.8rem; }
+    }
 </style>
 
-<div class="container py-5">
-    <div class="product-info-card">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h2 class="fw-bold mb-2">{{ $product->nama_produk }}</h2>
-                <p class="text-muted small mb-3">{{ $product->deskripsi }}</p>
-                <div class="price-badge">Rp {{ number_format($product->harga, 0, ',', '.') }}</div>
+<div class="container-custom">
+    
+    <!-- 1. HEADER TOMBOL KEMBALI -->
+    <div class="header-nav">
+        <a href="{{ route('products.index') }}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Kembali
+        </a>
+    </div>
+
+    <!-- 2. PRODUCT CARD -->
+    <div class="product-main-card">
+        <div class="product-img-col">
+            @if($product->gambar)
+                <img src="{{ asset('storage/' . $product->gambar) }}" alt="{{ $product->nama_produk }}">
+            @else
+                <div style="text-align: center; color: #cbd5e1;">
+                    <i class="bi bi-image" style="font-size: 4rem;"></i>
+                    <p>No Image</p>
+                </div>
+            @endif
+        </div>
+        <div class="product-info-col">
+            <div>
+                <span class="badge-label">Official Store</span>
+                <h1 class="product-title">{{ $product->nama_produk }}</h1>
+                <div class="product-price">Rp {{ number_format($product->harga, 0, ',', '.') }}</div>
+                <p class="product-desc">{{ $product->deskripsi }}</p>
             </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a href="{{ route('products.index') }}" class="btn btn-sm btn-outline-secondary px-4">
-                    <i class="bi bi-arrow-left me-1"></i> Kembali
-                </a>
-            </div>
+
+            @auth
+                <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn-add-cart">
+                        <i class="bi bi-bag-plus"></i> Masukkan Keranjang
+                    </button>
+                </form>
+            @endauth
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <h5 class="section-title">
-                Ulasan Pelanggan 
-                <span class="badge rounded-pill bg-light text-dark fw-normal border" style="font-size: 0.7rem;">{{ $product->comments->count() }}</span>
-            </h5>
+    <!-- 3. BAGIAN KOMENTAR (SUDAH DIPERBAIKI FOTONYA) -->
+    <div class="comments-section">
+        
+        <div class="section-head">
+            <h3>Ulasan Pembeli</h3>
+            <span class="count-pill">{{ $product->comments->count() }}</span>
+        </div>
 
-            @auth
-            <div class="comment-input-container">
-                <div class="user-avatar shadow-sm">
+        <!-- Form Input Komentar (Tampilkan Foto User Login) -->
+        @auth
+        <div class="comment-form-wrapper">
+            <div class="user-avatar-circle">
+                @if(auth()->user()->avatar)
+                    <img src="{{ asset('storage/' . auth()->user()->avatar) }}">
+                @else
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
-                <form action="{{ route('comments.store') }}" method="POST" class="textarea-wrapper">
+                @endif
+            </div>
+            <div class="comment-box">
+                <form action="{{ route('comments.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <textarea name="content" class="custom-textarea" rows="2" placeholder="Bagikan ulasan ramah Anda..." required></textarea>
-                    <button class="btn-send shadow-sm">Kirim Ulasan</button>
+                    <textarea name="content" class="comment-textarea" placeholder="Tulis pendapatmu tentang produk ini..." required></textarea>
+                    <button class="btn-post-comment">Kirim Ulasan</button>
                 </form>
             </div>
-            @endauth
+        </div>
+        @else
+        <div class="alert alert-light text-center border mb-5" style="border-radius: 12px;">
+            <a href="{{ route('login') }}" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login</a> untuk memberikan ulasan.
+        </div>
+        @endauth
 
-            <div class="comment-list-wrapper">
-                @forelse($product->comments as $comment)
-                <div class="comment-item">
-                    <div class="user-avatar" style="background: #f1f5f9; color: var(--primary-green); font-size: 0.9rem;">
+        <!-- Daftar Komentar (Tampilkan Foto User Lain) -->
+        <div class="comment-list">
+            @forelse($product->comments as $comment)
+            <div class="comment-card">
+                <div class="comment-avatar">
+                    @if($comment->user->avatar)
+                        {{-- MENAMPILKAN FOTO JIKA ADA --}}
+                        <img src="{{ asset('storage/' . $comment->user->avatar) }}">
+                    @else
+                        {{-- MENAMPILKAN HURUF INISIAL JIKA TIDAK ADA FOTO --}}
                         {{ strtoupper(substr($comment->user->name, 0, 1)) }}
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex align-items-center">
-                            <span class="comment-author">{{ $comment->user->name }}</span>
-                            <span class="comment-meta">{{ $comment->created_at->diffForHumans() }}</span>
-                        </div>
-
-                        <div class="comment-body" id="text-{{ $comment->id }}">
-                            @if($comment->user->role === 'admin')
-                                <span class="admin-tag">Official</span>
+                    @endif
+                </div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-user">
+                            {{ $comment->user->name }}
+                            @if($comment->user->role === 'admin') 
+                                <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.8rem; margin-left: 4px;" title="Admin"></i>
                             @endif
-                            {{ $comment->content }}
-                        </div>
+                        </span>
+                        <span class="comment-time">{{ $comment->created_at->diffForHumans() }}</span>
+                    </div>
+                    
+                    <div class="comment-text">
+                        {{ $comment->content }}
+                    </div>
 
-                        <div class="interaction-bar">
-                            <form action="{{ route('comments.like', $comment->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button class="btn-interact {{ $comment->likes > 0 ? 'active' : '' }}">
-                                    <i class="bi bi-hand-thumbs-up{{ $comment->likes > 0 ? '-fill' : '' }}"></i> 
-                                    <span>{{ $comment->likes }}</span>
-                                </button>
-                            </form>
+                    <div class="comment-actions">
+                        <form action="{{ route('comments.like', $comment->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button class="action-link {{ $comment->likes > 0 ? 'active' : '' }}">
+                                <i class="bi bi-hand-thumbs-up{{ $comment->likes > 0 ? '-fill' : '' }}"></i>
+                                <span>{{ $comment->likes > 0 ? $comment->likes : 'Suka' }}</span>
+                            </button>
+                        </form>
 
-                            <form action="{{ route('comments.dislike', $comment->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button class="btn-interact">
-                                    <i class="bi bi-hand-thumbs-down"></i> 
-                                    <span>{{ $comment->dislikes }}</span>
-                                </button>
-                            </form>
-
-                            {{-- Tombol Edit di sini sudah dihapus sesuai permintaan --}}
-
-                            @can('delete', $comment)
-                            <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" class="d-inline">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="action-link delete-link" onclick="return confirm('Hapus ulasan?')">Hapus</button>
-                            </form>
-                            @endcan
-                        </div>
-                        
-                        {{-- Form edit tetap ada di sini (hidden), 
-                             bisa kamu panggil lewat fungsi JS jika nanti dibutuhkan --}}
-                        @can('update', $comment)
-                        <div id="edit-form-{{ $comment->id }}" class="mt-3 d-none">
-                            <form action="{{ route('comments.update', $comment->id) }}" method="POST">
-                                @csrf @method('PUT')
-                                <textarea name="content" class="form-control form-control-sm mb-2 shadow-none border-success" rows="2">{{ $comment->content }}</textarea>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-success px-3">Update</button>
-                                    <button type="button" class="btn btn-sm btn-light border" onclick="toggleEdit({{ $comment->id }})">Batal</button>
-                                </div>
-                            </form>
-                        </div>
+                        @can('delete', $comment)
+                        <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" class="d-inline">
+                            @csrf @method('DELETE')
+                            <button class="action-link delete" onclick="return confirm('Hapus komentar?')">Hapus</button>
+                        </form>
                         @endcan
                     </div>
                 </div>
-                @empty
-                <div class="text-center py-5 border-top">
-                    <p class="text-muted">Belum ada ulasan untuk produk ini.</p>
-                </div>
-                @endforelse
             </div>
+            @empty
+            <div class="text-center py-5" style="color: #94a3b8;">
+                <i class="bi bi-chat-quote" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                <p>Belum ada ulasan. Jadilah yang pertama berkomentar!</p>
+            </div>
+            @endforelse
         </div>
+
     </div>
 </div>
-
-<script>
-    function toggleEdit(id) {
-        const form = document.getElementById('edit-form-' + id);
-        if(form) {
-            form.classList.toggle('d-none');
-        }
-    }
-</script>
 @endsection
