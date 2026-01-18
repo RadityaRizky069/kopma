@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -39,7 +40,35 @@ class AdminController extends Controller
     // ================= LAPORAN =================
     public function reports(Request $request)
     {
-        $type = $request->input('type', 'monthly');
+        $type  = $request->input('type', 'monthly');
+        $month = (int) $request->input('month', now()->month);
+        $year  = (int) $request->input('year', now()->year);
+        $date  = $request->input('date', now()->toDateString());
+
+        // ================= AMBIL BULAN & TAHUN YANG ADA DATA =================
+        $availablePeriods = DB::table('transaksi')
+            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month')
+            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->get();
+
+        // ================= VALIDASI BULAN (ANTI ERROR) =================
+        if ($type === 'monthly') {
+            $isValid = $availablePeriods
+                ->where('year', $year)
+                ->where('month', $month)
+                ->count();
+
+            if (!$isValid) {
+                // fallback ke bulan terbaru yang ada data
+                $latest = $availablePeriods->first();
+                if ($latest) {
+                    $month = (int) $latest->month;
+                    $year  = (int) $latest->year;
+                }
+            }
+        }
 
         if (!Schema::hasTable('transaksi')) {
             $transactions = collect();
@@ -47,31 +76,15 @@ class AdminController extends Controller
 
             $query = DB::table('transaksi')
                 ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
-                ->leftJoin(
-                    'detail_transaksi',
-                    'transaksi.id',
-                    '=',
-                    'detail_transaksi.transaction_id'
-                )
-                ->leftJoin(
-                    'produk',
-                    'detail_transaksi.product_id',
-                    '=',
-                    'produk.id'
-                )
+                ->leftJoin('detail_transaksi', 'transaksi.id', '=', 'detail_transaksi.transaction_id')
+                ->leftJoin('produk', 'detail_transaksi.product_id', '=', 'produk.id')
                 ->select(
                     'transaksi.id',
                     'transaksi.created_at',
                     'transaksi.status',
                     'users.name as user_name',
-
-                    // Nama produk (bisa lebih dari satu)
                     DB::raw('GROUP_CONCAT(produk.nama_produk SEPARATOR ", ") as product_name'),
-
-                    // TOTAL JUMLAH PRODUK
                     DB::raw('SUM(detail_transaksi.quantity) as total_items'),
-
-                    // Total harga (alias, tanpa ubah DB)
                     'transaksi.total_harga as total_price'
                 )
                 ->groupBy(
@@ -83,23 +96,45 @@ class AdminController extends Controller
                 )
                 ->orderBy('transaksi.created_at', 'desc');
 
+            // ================= FILTER =================
             if ($type === 'daily') {
-                $query->whereDate('transaksi.created_at', date('Y-m-d'));
-            } elseif ($type === 'monthly') {
-                $query->whereMonth('transaksi.created_at', date('m'))
-                      ->whereYear('transaksi.created_at', date('Y'));
+                $query->whereDate('transaksi.created_at', $date);
+            }
+            elseif ($type === 'weekly') {
+                $query->whereBetween('transaksi.created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ]);
+            }
+            elseif ($type === 'monthly') {
+                $query->whereMonth('transaksi.created_at', $month)
+                      ->whereYear('transaksi.created_at', $year);
+            }
+            elseif ($type === 'yearly') {
+                $query->whereYear('transaksi.created_at', $year);
             }
 
             $transactions = $query->get();
         }
 
-        return view('admin.transactions.reports', compact('transactions', 'type'));
+        return view('admin.transactions.reports', compact(
+            'transactions',
+            'type',
+            'month',
+            'year',
+            'date',
+            'availablePeriods'
+        ));
     }
 
     // ================= EXPORT CSV =================
     public function exportReports(Request $request)
     {
-        $type = $request->input('type', 'monthly');
+        $type  = $request->input('type', 'monthly');
+        $month = (int) $request->input('month', now()->month);
+        $year  = (int) $request->input('year', now()->year);
+        $date  = $request->input('date', now()->toDateString());
+
         $fileName = 'laporan-' . $type . '-' . date('d-m-Y') . '.csv';
 
         if (!Schema::hasTable('transaksi')) {
@@ -108,18 +143,8 @@ class AdminController extends Controller
 
         $query = DB::table('transaksi')
             ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
-            ->leftJoin(
-                'detail_transaksi',
-                'transaksi.id',
-                '=',
-                'detail_transaksi.transaction_id'
-            )
-            ->leftJoin(
-                'produk',
-                'detail_transaksi.product_id',
-                '=',
-                'produk.id'
-            )
+            ->leftJoin('detail_transaksi', 'transaksi.id', '=', 'detail_transaksi.transaction_id')
+            ->leftJoin('produk', 'detail_transaksi.product_id', '=', 'produk.id')
             ->select(
                 'transaksi.created_at',
                 'users.name as user_name',
@@ -137,11 +162,22 @@ class AdminController extends Controller
             )
             ->orderBy('transaksi.created_at', 'desc');
 
+        // FILTER SAMA DENGAN VIEW
         if ($type === 'daily') {
-            $query->whereDate('transaksi.created_at', date('Y-m-d'));
-        } elseif ($type === 'monthly') {
-            $query->whereMonth('transaksi.created_at', date('m'))
-                  ->whereYear('transaksi.created_at', date('Y'));
+            $query->whereDate('transaksi.created_at', $date);
+        }
+        elseif ($type === 'weekly') {
+            $query->whereBetween('transaksi.created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ]);
+        }
+        elseif ($type === 'monthly') {
+            $query->whereMonth('transaksi.created_at', $month)
+                  ->whereYear('transaksi.created_at', $year);
+        }
+        elseif ($type === 'yearly') {
+            $query->whereYear('transaksi.created_at', $year);
         }
 
         $transactions = $query->get();
