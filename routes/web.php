@@ -24,33 +24,33 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 /* ================= ADMIN ================= */
-Route::middleware(['auth','role:admin'])
+Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
 
-        Route::get('/', [AdminController::class,'dashboard'])->name('dashboard');
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
 
-        Route::get('customers', [AdminController::class,'customers'])->name('customers');
+        Route::get('customers', [AdminController::class, 'customers'])->name('customers');
 
         // --- Transaksi ---
-        Route::get('transactions', [TransactionController::class,'index'])->name('transactions');
+        Route::get('transactions', [TransactionController::class, 'index'])->name('transactions');
         Route::post(
             'transactions/{id}/update-status',
-            [TransactionController::class,'updateStatus']
-        )->name('transactions.updateStatus');
+            [TransactionController::class, 'updateStatus']
+        ) ->name('transactions.updateStatus');
 
         // --- Laporan ---
-        Route::get('reports', [AdminController::class,'reports'])->name('reports');
+        Route::get('reports', [AdminController::class, 'reports'])->name('reports');
         Route::get('reports/export', [AdminController::class, 'exportReports'])->name('reports.export');
     });
 
 /* ================= CUSTOMER - PUBLIK ================= */
-Route::get('products', [ProductController::class,'index'])->name('products.index');
-Route::get('products/{id}', [ProductController::class,'show'])->name('products.show');
+Route::get('products', [ProductController::class, 'index'])->name('products.index');
+Route::get('products/{id}', [ProductController::class, 'show'])->name('products.show');
 
 /* ================= KOMENTAR (LOGIN REQUIRED) ================= */
 Route::middleware('auth')->group(function () {
@@ -64,16 +64,16 @@ Route::middleware('auth')->group(function () {
 });
 
 /* ================= CUSTOMER - PRIVATE ================= */
-Route::middleware(['role:customer','auth'])->group(function () {
+Route::middleware(['role:customer', 'auth'])->group(function () {
 
-    Route::get('cart', [CartController::class,'index'])->name('cart.index');
-    Route::post('cart/add/{id}', [CartController::class,'add'])->name('cart.add');
-    Route::patch('cart/update/{id}', [CartController::class,'update'])->name('cart.update');
-    Route::delete('cart/remove/{id}', [CartController::class,'remove'])->name('cart.remove');
+    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+    Route::patch('cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
-    Route::post('checkout', [TransactionController::class,'checkout'])->name('checkout');
+    Route::post('checkout', [TransactionController::class, 'checkout'])->name('checkout');
 
-    Route::get('transactions', [TransactionController::class,'customerTransactions'])
+    Route::get('transactions', [TransactionController::class, 'customerTransactions'])
         ->name('customer.transactions');
 });
 
@@ -81,4 +81,5 @@ Route::middleware(['role:customer','auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/{id}', [ProfileController::class, 'show'])->name('profile.show');
 });
