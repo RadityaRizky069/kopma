@@ -9,7 +9,6 @@
     body {
         background-color: #f1f5f9;
     }
-    
     .page-container {
         padding: 40px;
         font-family: 'Inter', sans-serif;
@@ -20,28 +19,26 @@
     .swal2-container {
         z-index: 99999 !important;
     }
+    .swal2-popup {
+        font-size: 14px !important;
+    }
 
     .header-title {
         color: #0f172a;
         font-size: 28px;
         font-weight: 800;
-        letter-spacing: -0.025em;
     }
 
     .header-subtitle {
         color: #64748b;
         font-size: 14px;
-        margin-top: 5px;
     }
 
     .data-badge {
         background: white;
         padding: 8px 16px;
         border-radius: 50px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         border: 1px solid #e2e8f0;
-        color: #475569;
-        font-size: 14px;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -53,37 +50,25 @@
         border-collapse: separate;
         border-spacing: 0 12px;
     }
-    
     .custom-table thead th {
-        color: #64748b;
         font-size: 12px;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 0 20px 10px 20px;
-        border: none;
-        text-align: left;
+        padding: 0 20px 10px;
     }
-
     .table-row {
         background: white;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(148, 163, 184, 0.05);
+        transition: all 0.2s;
     }
-    
     .table-row td {
         padding: 20px;
-        border-top: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
     }
     
     .table-row td:first-child {
-        border-left: 1px solid #f1f5f9;
         border-top-left-radius: 16px;
         border-bottom-left-radius: 16px;
     }
+
     .table-row td:last-child {
-        border-right: 1px solid #f1f5f9;
         border-top-right-radius: 16px;
         border-bottom-right-radius: 16px;
     }
@@ -116,7 +101,7 @@
 
     .avatar-circle { width: 24px; height: 24px; background: #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; }
 
-    /* Notifikasi Animasi Kanan Bawah */
+    /* Notifikasi Animasi */
     .order-notification {
         position: fixed;
         bottom: 30px;
@@ -232,6 +217,14 @@
                             <div class="avatar-circle">{{ substr($item->user->name ?? 'G', 0, 1) }}</div>
                             <span>{{ $item->user->name ?? 'User Terhapus' }}</span>
                         </div>
+
+                        {{-- INFO CICILAN DARI BRANCH ADUHPUSING --}}
+                        @if($item->metode_pembayaran === 'Cicilan' && $item->installment_duration)
+                            <div style="margin-top:8px; font-size:11px; background:#f0fdf4; color:#166534; padding:4px 10px; border-radius:6px; display:inline-flex; align-items:center; gap:5px;">
+                                <i class="fas fa-calendar-alt"></i>
+                                Cicilan {{ $item->installment_duration }} hari
+                            </div>
+                        @endif
                     </td>
                     <td>
                         <span class="price-text">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</span>
@@ -258,7 +251,6 @@
                         @if(in_array($status, ['menunggu', 'diproses']))
                         <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST" id="form-status-{{ $item->id }}">
                             @csrf
-                            {{-- Input Hidden untuk mengirim status ke Controller --}}
                             <input type="hidden" name="status" id="input-status-{{ $item->id }}">
                             
                             <div style="display: flex; gap: 8px; justify-content: center;">
@@ -278,7 +270,7 @@
                             </div>
                         </form>
                         @else
-                            <span style="color: #cbd5e1; font-size: 12px; font-weight: 500;"><i class="fas fa-lock"></i></span>
+                            <span style="color: #cbd5e1; font-size: 12px;"><i class="fas fa-lock"></i></span>
                         @endif
                     </td>
                 </tr>
@@ -297,14 +289,8 @@
 
 <script>
     function confirmUpdate(id, statusValue) {
-        // Ambil elemen form dan input hidden berdasarkan ID unik
         const targetForm = document.getElementById('form-status-' + id);
         const statusInput = document.getElementById('input-status-' + id);
-
-        if (!targetForm || !statusInput) {
-            console.error("Elemen form atau input tidak ditemukan!");
-            return;
-        }
 
         let titleText = 'Konfirmasi';
         let bodyText = 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
@@ -339,17 +325,12 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                // Set nilai status ke input hidden
                 statusInput.value = statusValue;
-                
-                // Tampilkan loading spinner agar user tahu proses sedang berjalan
                 Swal.fire({
                     title: 'Sedang Memproses...',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); }
                 });
-
-                // Submit form secara manual
                 targetForm.submit();
             }
         });

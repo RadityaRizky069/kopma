@@ -52,33 +52,35 @@ Route::middleware(['auth', 'role:admin'])
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{id}', [ProductController::class, 'show'])->name('products.show');
 
-/* ================= KOMENTAR (LOGIN REQUIRED) ================= */
+/* ================= FITUR UMUM (LOGIN REQUIRED) ================= */
 Route::middleware('auth')->group(function () {
+    // Komentar
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
-
     Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->name('comments.like');
     Route::post('/comments/{comment}/dislike', [CommentController::class, 'dislike'])->name('comments.dislike');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/{id}', [ProfileController::class, 'show'])->name('profile.show');
 });
 
 /* ================= CUSTOMER - PRIVATE ================= */
-Route::middleware(['role:customer', 'auth'])->group(function () {
+Route::middleware(['auth', 'role:customer'])->group(function () {
 
+    // Keranjang Belanja
     Route::get('cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
     Route::patch('cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
+    // Checkout & Transaksi
     Route::post('checkout', [TransactionController::class, 'checkout'])->name('checkout');
+    Route::get('transactions', [TransactionController::class, 'customerTransactions'])->name('customer.transactions');
 
-    Route::get('transactions', [TransactionController::class, 'customerTransactions'])
-        ->name('customer.transactions');
-});
-
-/* ================= PROFILE USER ================= */
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/{id}', [ProfileController::class, 'show'])->name('profile.show');
+    // Fitur Cicilan
+    Route::get('transactions/{id}/pay', [TransactionController::class, 'payInstallment'])->name('transactions.pay');
+    Route::post('transactions/{id}/pay', [TransactionController::class, 'processInstallment'])->name('transactions.pay.process');
 });
