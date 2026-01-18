@@ -85,7 +85,10 @@ Route::middleware(['role:customer'])->group(function () {
 
     Route::delete('cart/remove/{id}', [CartController::class,'remove'])->name('cart.remove');
 
-    Route::post('checkout', [TransactionController::class,'checkout'])->name('checkout');
+   Route::post('checkout', [TransactionController::class,'checkout'])
+    ->middleware('auth')
+    ->name('checkout');
+
 
     Route::get('transactions', [TransactionController::class,'customerTransactions'])
         ->name('customer.transactions');
