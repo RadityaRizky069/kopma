@@ -7,8 +7,10 @@ use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\InstallmentPayment; // Import Model Riwayat
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -20,7 +22,23 @@ class TransactionController extends Controller
         ]);
 
         $userId = Auth::id();
-        $cartItems = Cart::where('user_id', $userId)->get();
+        $user = Auth::user();
+
+        // ================== LOGIKA BLOCKER ==================
+        // Cek apakah user punya cicilan yang BELUM LUNAS dan SUDAH LEWAT JATUH TEMPO
+        $tunggakan = Transaction::where('user_id', $userId)
+            ->where('is_installment', 1)
+            ->where('status', '!=', 'selesai')
+            ->where('installment_due', '<', now())
+            ->whereRaw('installment_paid < installment_total')
+            ->first();
+
+        if ($tunggakan) {
+            return redirect()->route('customer.transactions')->with('error', 
+                'Checkout diblokir! Kamu memiliki tunggakan cicilan pada transaksi ' . $tunggakan->kode_transaksi . '. Mohon lunasi terlebih dahulu.');
+        }
+
+        $cartItems = Cart::with('product')->where('user_id', $userId)->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Keranjang belanja kosong!');
@@ -35,29 +53,43 @@ class TransactionController extends Controller
                 $totalHarga += $harga * $item->jumlah;
             }
 
-            // ================== HITUNG POIN (BELUM DIPOTONG) ==================
-            $user = Auth::user();
+            // ================== LOGIKA POIN ==================
             $usePoints = 0;
             $potongan  = 0;
 
             if ($user->is_member && $request->filled('use_points')) {
                 $usePoints = (int) $request->use_points;
+                if ($usePoints > $user->points) $usePoints = $user->points;
 
-                // Tidak boleh melebihi poin user
-                if ($usePoints > $user->points) {
-                    $usePoints = $user->points;
-                }
-
-                // 1 poin = Rp 100
                 $potongan = $usePoints * 100;
-
-                // Potongan tidak boleh lebih dari total harga
                 if ($potongan > $totalHarga) {
                     $potongan  = $totalHarga;
                     $usePoints = floor($totalHarga / 100);
                 }
-
                 $totalHarga -= $potongan;
+            }
+
+            // ================== LOGIKA HITUNG CICILAN ==================
+            $isInstallment = 0;
+            $duration = null;
+            $dueDate = null;
+            $installmentAmount = 0;
+
+            if ($request->metode_pembayaran === 'Cicilan') {
+                if (!$user->is_member) {
+                    throw new \Exception('Maaf, fitur cicilan hanya tersedia untuk member aktif.');
+                }
+                if (!$request->filled('installment_duration')) {
+                    throw new \Exception('Mohon pilih durasi cicilan.');
+                }
+
+                $isInstallment = 1;
+                $duration = (int) $request->installment_duration;
+                $dueDate = now()->addDays($duration);
+
+                // Hitung nominal per termin (Mingguan jika <= 14 hari, Bulanan jika > 14 hari)
+                $jumlahTermin = ($duration <= 14) ? ($duration / 7) : ($duration / 30);
+                $installmentAmount = ceil($totalHarga / $jumlahTermin);
             }
 
             // ================= SIMPAN TRANSAKSI =================
@@ -70,28 +102,31 @@ class TransactionController extends Controller
                 'tanggal'           => now(),
                 'used_points'       => $usePoints,
                 'discount'          => $potongan,
+                'is_installment'        => $isInstallment,
+                'installment_duration'  => $duration,
+                'installment_total'     => $totalHarga,
+                'installment_amount'    => $installmentAmount,
+                'installment_paid'      => 0,
+                'installment_due'       => $dueDate,
             ]);
 
-            // ================= DETAIL TRANSAKSI =================
+            // ================= DETAIL TRANSAKSI & STOK =================
             foreach ($cartItems as $item) {
                 $harga = $item->product->harga ?? $item->product->price;
-
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
                     'product_id'     => $item->produk_id,
                     'quantity'       => $item->jumlah,
                     'price'          => $harga
                 ]);
-
-                Product::where('id', $item->produk_id)
-                    ->decrement('stok', $item->jumlah);
+                Product::where('id', $item->produk_id)->decrement('stok', $item->jumlah);
             }
 
             Cart::where('user_id', $userId)->delete();
 
             DB::commit();
             return redirect()->route('customer.transactions')
-                ->with('success', 'Checkout berhasil! Menunggu konfirmasi admin.');
+                ->with('success', 'Checkout berhasil! ' . ($isInstallment ? 'Tagihan cicilan telah dibuat.' : 'Menunggu konfirmasi admin.'));
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -99,10 +134,75 @@ class TransactionController extends Controller
         }
     }
 
+    // ================= PAY INSTALLMENT (TAMPILAN) =================
+    public function payInstallment($id)
+    {
+        $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
+        $sisaBayar = $transaction->installment_total - $transaction->installment_paid;
+
+        return view('customer.pay_installment', compact('transaction', 'sisaBayar'));
+    }
+
+    // ================= PROCESS INSTALLMENT (LOGIKA BAYAR + RIWAYAT) =================
+    public function processInstallment(Request $request, $id)
+    {
+        $request->validate([
+            'jumlah_bayar' => 'required|numeric|min:1000'
+        ]);
+
+        $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
+        $user = Auth::user();
+        $sisaBayar = $transaction->installment_total - $transaction->installment_paid;
+
+        if ($request->jumlah_bayar > $sisaBayar) {
+            return redirect()->back()->with('error', 'Jumlah bayar melebihi sisa tagihan!');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Catat ke Tabel Riwayat (InstallmentPayment)
+            InstallmentPayment::create([
+                'transaction_id' => $transaction->id,
+                'amount'         => $request->jumlah_bayar,
+                'payment_date'   => now(),
+            ]);
+
+            // 2. Update Progress di Tabel Transaksi
+            $transaction->increment('installment_paid', $request->jumlah_bayar);
+
+            // Refetch untuk cek status terbaru
+            $checkStatus = Transaction::find($id);
+            if ($checkStatus->installment_paid >= $checkStatus->installment_total) {
+                $checkStatus->update(['status' => 'selesai']);
+
+                if ($user->is_member) {
+                    // Kurangi poin yang dipakai saat checkout
+                    if ($checkStatus->used_points > 0) {
+                        $user->decrement('points', $checkStatus->used_points);
+                    }
+                    // Beri poin baru (1 poin per 10rb)
+                    $earnedPoints = floor($checkStatus->total_harga / 10000);
+                    if ($earnedPoints > 0) {
+                        $user->increment('points', $earnedPoints);
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('customer.transactions')
+                ->with('success', 'Pembayaran cicilan Rp ' . number_format($request->jumlah_bayar, 0, ',', '.') . ' berhasil disimpan.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal bayar cicilan: ' . $e->getMessage());
+        }
+    }
+
     // ================= TRANSAKSI CUSTOMER =================
     public function customerTransactions()
     {
         $transactions = Transaction::where('user_id', Auth::id())
+            ->with('installmentPayments') // Eager loading untuk riwayat di modal
             ->latest()
             ->get();
 
@@ -112,10 +212,7 @@ class TransactionController extends Controller
     // ================= TRANSAKSI ADMIN =================
     public function index()
     {
-        $transactions = Transaction::with('user')
-            ->latest()
-            ->get();
-
+        $transactions = Transaction::with(['user', 'installmentPayments'])->latest()->get();
         return view('admin.transactions.index', compact('transactions'));
     }
 
@@ -131,18 +228,11 @@ class TransactionController extends Controller
             $transaction = Transaction::with('user')->findOrFail($id);
             $user = $transaction->user;
 
-            // ================= STATUS SELESAI =================
             if ($request->status === 'selesai') {
-
                 if ($user && $user->is_member) {
-
-                    // POTONG POIN YANG DIPAKAI
                     if ($transaction->used_points > 0) {
                         $user->decrement('points', $transaction->used_points);
                     }
-
-                    // TAMBAH POIN BARU
-                    // (Rp 10.000 = 1 poin)
                     $earnedPoints = floor($transaction->total_harga / 10000);
                     if ($earnedPoints > 0) {
                         $user->increment('points', $earnedPoints);
@@ -150,23 +240,13 @@ class TransactionController extends Controller
                 }
             }
 
-            // ================= STATUS DITOLAK =================
-            // Tidak perlu balikin poin
-            // karena poin belum pernah dipotong
-
-            // UPDATE STATUS
-            $transaction->update([
-                'status' => $request->status
-            ]);
+            $transaction->update(['status' => $request->status]);
 
             DB::commit();
-            return redirect()->back()
-                ->with('success', 'Status transaksi berhasil diperbarui.');
-
+            return redirect()->back()->with('success', 'Status transaksi berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Gagal update status: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal update status: ' . $e->getMessage());
         }
     }
 }
