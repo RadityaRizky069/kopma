@@ -7,7 +7,7 @@
 
 <style>
     body {
-        background-color: #f1f5f9; /* Slate 100 */
+        background-color: #f1f5f9;
     }
     
     .page-container {
@@ -16,26 +16,23 @@
         min-height: 100vh;
     }
 
-    /* FIX PENTING: Memastikan Popup ada di lapisan paling atas agar tombol Batal bisa dipencet */
     .swal2-container {
         z-index: 99999 !important;
     }
-    .swal2-popup {
-        font-size: 14px !important; /* Agar teks popup proporsional */
-    }
 
-    /* Header Styling */
     .header-title {
         color: #0f172a;
         font-size: 28px;
         font-weight: 800;
         letter-spacing: -0.025em;
     }
+
     .header-subtitle {
         color: #64748b;
         font-size: 14px;
         margin-top: 5px;
     }
+
     .data-badge {
         background: white;
         padding: 8px 16px;
@@ -50,7 +47,6 @@
         gap: 8px;
     }
 
-    /* Table Styling */
     .custom-table {
         width: 100%;
         border-collapse: separate;
@@ -80,7 +76,6 @@
         border-bottom: 1px solid #f1f5f9;
     }
     
-    /* Rounded corners */
     .table-row td:first-child {
         border-left: 1px solid #f1f5f9;
         border-top-left-radius: 16px;
@@ -95,199 +90,251 @@
     .table-row:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        border-color: #cbd5e1;
     }
 
     .trans-code { font-weight: 700; color: #334155; font-size: 15px; }
-    .user-info { display: flex; align-items: center; gap: 10px; margin-top: 5px; color: #64748b; font-size: 13px; }
-    .price-text { font-family: 'Inter', sans-serif; font-weight: 700; color: #0f172a; font-size: 15px; }
+    .item-list { font-size: 12px; color: #94a3b8; margin-top: 4px; font-style: italic; }
+    .user-info { display: flex; align-items: center; gap: 10px; margin-top: 8px; color: #64748b; font-size: 13px; }
+    .price-text { font-family: 'Inter', sans-serif; font-weight: 700; color: #16a34a; font-size: 15px; }
 
-    /* Badges */
-    .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; }
     .badge-waiting { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
     .badge-process { background: #eff6ff; color: #0369a1; border: 1px solid #bae6fd; }
     .badge-success { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
     .badge-reject  { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-    /* Buttons */
-    .btn-action { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+    .btn-action { height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; padding: 0 15px; gap: 8px; }
     .btn-accept { background: #dcfce7; color: #166534; }
-    .btn-accept:hover { background: #22c55e; color: white; transform: scale(1.1); }
+    .btn-accept:hover { background: #22c55e; color: white; transform: translateY(-1px); }
     .btn-reject { background: #fee2e2; color: #991b1b; }
-    .btn-reject:hover { background: #ef4444; color: white; transform: scale(1.1); }
-    .btn-finish { background: #e0f2fe; color: #0369a1; width: auto; padding: 0 15px; }
-    .btn-finish:hover { background: #0ea5e9; color: white; }
+    .btn-reject:hover { background: #ef4444; color: white; transform: translateY(-1px); }
+    .btn-finish { background: #e0f2fe; color: #0369a1; }
+    .btn-finish:hover { background: #0ea5e9; color: white; transform: translateY(-1px); }
 
-    .empty-state { background: white; border-radius: 20px; padding: 60px; text-align: center; border: 2px dashed #e2e8f0; }
-    .avatar-circle { width: 24px; height: 24px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b; font-weight: bold; }
+    .avatar-circle { width: 24px; height: 24px; background: #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; }
+
+    /* Notifikasi Animasi Animasi */
+    .order-notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #0f172a;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 1000;
+        animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .order-notif-icon {
+        background: #f59e0b;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%) scale(0.5); opacity: 0; }
+        to { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
 </style>
 
 <div class="page-container">
-
-    {{-- HEADER --}}
-    <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
-        <div>
-            <h2 class="header-title">Kelola Pesanan</h2>
-            <p class="header-subtitle">Pantau dan kelola transaksi masuk dengan mudah.</p>
-        </div>
-        <div class="data-badge">
-            <i class="fas fa-receipt" style="color: #f59e0b;"></i>
-            <span>{{ $transactions->count() }} Transaksi</span>
-        </div>
-    </div>
-
-    {{-- ALERTS --}}
+    {{-- ALERT PESAN --}}
     @if(session('success'))
-    <div style="margin-bottom: 20px; background: #ffffff; border-left: 5px solid #22c55e; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px;">
-        <div style="background: #dcfce7; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #166534;">
-            <i class="fas fa-check"></i>
+        <script>
+            Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
+        </script>
+    @endif
+    @if(session('error'))
+        <script>
+            Swal.fire({ icon: 'error', title: 'Gagal', text: "{{ session('error') }}" });
+        </script>
+    @endif
+
+    {{-- NOTIFIKASI PESANAN BARU --}}
+    @php
+        $pendingCount = $transactions->where('status', 'menunggu')->count();
+    @endphp
+
+    @if($pendingCount > 0)
+    <div class="order-notification">
+        <div class="order-notif-icon">
+            <i class="fas fa-bell"></i>
         </div>
         <div>
-            <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #1e293b;">Berhasil!</h4>
-            <p style="margin: 0; font-size: 13px; color: #64748b;">{{ session('success') }}</p>
+            <div style="font-size: 14px; font-weight: 700;">Pesanan Baru!</div>
+            <div style="font-size: 12px; opacity: 0.8;">Ada {{ $pendingCount }} pesanan menunggu konfirmasi.</div>
         </div>
+        <button onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:white; opacity: 0.5; cursor:pointer; padding: 5px;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
     @endif
 
-    {{-- TABLE --}}
+    <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+        <div>
+            <h2 class="header-title">Manajemen Pesanan</h2>
+            <p class="header-subtitle">Validasi pembayaran dan proses pesanan customer.</p>
+        </div>
+        <div class="data-badge">
+            <i class="fas fa-receipt" style="color: #f59e0b;"></i>
+            <span>{{ $transactions->count() }} Total Transaksi</span>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="custom-table">
             <thead>
                 <tr>
-                    <th width="5%">No</th>
-                    <th width="30%">Detail Transaksi</th>
-                    <th width="20%">Total Harga</th>
+                    <th width="5%" style="text-align: center;">No</th>
+                    <th width="35%">Informasi Transaksi</th>
+                    <th width="20%">Total Bayar</th>
                     <th width="15%">Status</th>
-                    <th width="15%">Tanggal</th>
-                    <th width="15%" style="text-align: center;">Aksi</th>
+                    <th width="15%">Waktu</th>
+                    <th width="10%" style="text-align: center;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($transactions as $item)
+                @php $status = strtolower($item->status); @endphp
                 <tr class="table-row">
                     <td style="text-align: center; color: #94a3b8; font-weight: 600;">{{ $loop->iteration }}</td>
                     <td>
-                        <div class="trans-code">{{ $item->kode_transaksi ?? '#' . $item->id }}</div>
+                        <div class="trans-code">{{ $item->kode_transaksi }}</div>
+                        <div class="item-list">
+                            @if($item->items && $item->items->count() > 0)
+                                <i class="fas fa-shopping-basket"></i> {{ $item->items->count() }} jenis produk
+                            @else
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Detail produk tidak terbaca
+                            @endif
+                        </div>
                         <div class="user-info">
-                            <div class="avatar-circle">{{ substr($item->user->name ?? 'U', 0, 1) }}</div>
+                            <div class="avatar-circle">{{ substr($item->user->name ?? 'G', 0, 1) }}</div>
                             <span>{{ $item->user->name ?? 'User Terhapus' }}</span>
                         </div>
                     </td>
-                    <td><span class="price-text">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</span></td>
                     <td>
-                        @if($item->status == 'menunggu')
+                        <span class="price-text">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</span>
+                        @if($item->discount > 0)
+                            <div style="font-size: 11px; color: #ef4444; margin-top: 2px;">(Poin: -Rp {{ number_format($item->discount, 0, ',', '.') }})</div>
+                        @endif
+                    </td>
+                    <td>
+                        @if($status == 'menunggu')
                             <span class="badge badge-waiting"><i class="fas fa-clock"></i> Menunggu</span>
-                        @elseif($item->status == 'diproses')
-                            <span class="badge badge-process"><i class="fas fa-cog fa-spin"></i> Diproses</span>
-                        @elseif($item->status == 'selesai')
+                        @elseif($status == 'diproses')
+                            <span class="badge badge-process"><i class="fas fa-spinner fa-spin"></i> Diproses</span>
+                        @elseif($status == 'selesai')
                             <span class="badge badge-success"><i class="fas fa-check-circle"></i> Selesai</span>
-                        @elseif($item->status == 'ditolak')
+                        @elseif($status == 'ditolak')
                             <span class="badge badge-reject"><i class="fas fa-times-circle"></i> Ditolak</span>
                         @endif
                     </td>
                     <td style="color: #64748b; font-size: 13px; font-weight: 500;">
-                        <div>{{ $item->created_at->format('d M Y') }}</div>
-                        <div style="font-size: 11px; opacity: 0.7;">Pukul {{ $item->created_at->format('H:i') }}</div>
+                        <div style="color: #334155;">{{ $item->created_at->translatedFormat('d F Y') }}</div>
+                        <div style="font-size: 11px; opacity: 0.8;">{{ $item->created_at->format('H:i') }} WIB</div>
                     </td>
                     <td style="text-align: center;">
-                        @if($item->status == 'menunggu')
-                            <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST">
-                                @csrf
-                                <div style="display: flex; gap: 8px; justify-content: center;">
-                                    <button type="button" class="btn-action btn-accept" onclick="confirmAction(this, 'diproses')" title="Terima">
-                                        <i class="fas fa-check"></i>
+                        @if(in_array($status, ['menunggu', 'diproses']))
+                        <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST" id="form-status-{{ $item->id }}">
+                            @csrf
+                            <input type="hidden" name="status" id="input-status-{{ $item->id }}">
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                @if($status == 'menunggu')
+                                    <button type="button" class="btn-action btn-accept" onclick="confirmUpdate({{ $item->id }}, 'diproses')" title="Terima Pesanan">
+                                        <i class="fas fa-check"></i> Terima
                                     </button>
-                                    <button type="button" class="btn-action btn-reject" onclick="confirmAction(this, 'ditolak')" title="Tolak">
-                                        <i class="fas fa-times"></i>
+                                    <button type="button" class="btn-action btn-reject" onclick="confirmUpdate({{ $item->id }}, 'ditolak')" title="Tolak Pesanan">
+                                        <i class="fas fa-times"></i> Tolak
                                     </button>
-                                </div>
-                            </form>
-                        @elseif($item->status == 'diproses')
-                            <form action="{{ route('admin.transactions.updateStatus', $item->id) }}" method="POST">
-                                @csrf
-                                <div style="display: flex; justify-content: center;">
-                                    <button type="button" class="btn-action btn-finish" onclick="confirmAction(this, 'selesai')">
-                                        Selesaikan <i class="fas fa-arrow-right" style="margin-left:5px;"></i>
+                                @elseif($status == 'diproses')
+                                    <button type="button" class="btn-action btn-finish" onclick="confirmUpdate({{ $item->id }}, 'selesai')" title="Selesaikan Pesanan">
+                                        <i class="fas fa-flag-checkered"></i> Selesai
                                     </button>
-                                </div>
-                            </form>
+                                    <button type="button" class="btn-action btn-reject" onclick="confirmUpdate({{ $item->id }}, 'ditolak')" title="Batalkan Pesanan">
+                                        <i class="fas fa-times"></i> Tolak
+                                    </button>
+                                @endif
+                            </div>
+                        </form>
                         @else
-                            <span style="color: #cbd5e1;"><i class="fas fa-lock"></i></span>
+                            <span style="color: #cbd5e1; font-size: 12px; font-weight: 500;"><i class="fas fa-lock"></i></span>
                         @endif
                     </td>
                 </tr>
                 @empty
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 50px; color: #94a3b8;">Belum ada pesanan masuk.</td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
-
-        @if($transactions->isEmpty())
-        <div class="empty-state">
-            <div style="background: #f1f5f9; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <i class="fas fa-inbox" style="font-size: 32px; color: #94a3b8;"></i>
-            </div>
-            <h3 style="color: #334155; margin: 0 0 10px;">Belum ada pesanan masuk</h3>
-        </div>
-        @endif
     </div>
 </div>
 
 <script>
-    function confirmAction(button, statusValue) {
-        // Ambil form terdekat
-        const form = button.closest('form');
-
-        // Settingan teks popup
+    function confirmUpdate(id, statusValue) {
         let titleText = 'Konfirmasi';
         let bodyText = 'Apakah Anda yakin?';
-        let confirmColor = '#3085d6';
-        let confirmButtonText = 'Ya';
-        let iconType = 'warning';
+        let confirmColor = '#3b82f6';
 
         if (statusValue === 'diproses') {
             titleText = 'Terima Pesanan?';
-            bodyText = 'Status transaksi akan berubah menjadi "Diproses".';
+            bodyText = 'Status akan berubah menjadi "Diproses".';
             confirmColor = '#22c55e'; 
-            confirmButtonText = 'Ya, Terima!';
-            iconType = 'question';
         } else if (statusValue === 'ditolak') {
             titleText = 'Tolak Pesanan?';
-            bodyText = 'Transaksi ini akan ditolak permanen.';
+            bodyText = 'Pesanan akan dibatalkan dan STOK AKAN DIKEMBALIKAN.';
             confirmColor = '#ef4444'; 
-            confirmButtonText = 'Ya, Tolak!';
-            iconType = 'warning';
         } else if (statusValue === 'selesai') {
             titleText = 'Selesaikan Pesanan?';
-            bodyText = 'Pastikan barang sudah diterima customer.';
+            bodyText = 'Pastikan pesanan sudah sampai ke customer.';
             confirmColor = '#3b82f6'; 
-            confirmButtonText = 'Ya, Selesai!';
-            iconType = 'info';
         }
 
-        // Jalankan SweetAlert Tanpa Animasi (Biar Stabil)
         Swal.fire({
             title: titleText,
             text: bodyText,
-            icon: iconType,
+            icon: statusValue === 'ditolak' ? 'warning' : 'question',
             showCancelButton: true,
             confirmButtonColor: confirmColor,
             cancelButtonColor: '#64748b',
-            confirmButtonText: confirmButtonText,
+            confirmButtonText: 'Ya, Lanjutkan',
             cancelButtonText: 'Batal',
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                // Buat input hidden secara manual lalu submit
-                let input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'status';
-                input.value = statusValue;
-                form.appendChild(input);
+                // Set value ke input hidden yang spesifik untuk ID ini
+                document.getElementById('input-status-' + id).value = statusValue;
+                
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
 
-                form.submit();
+                // Submit form yang spesifik untuk ID ini
+                document.getElementById('form-status-' + id).submit();
             }
         });
     }
 </script>
-
 @endsection
