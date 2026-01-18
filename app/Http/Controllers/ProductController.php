@@ -21,16 +21,22 @@ class ProductController extends Controller
     // ===============================
     // INDEX (ADMIN & CUSTOMER)
     // ===============================
-    public function index()
-    {
-        $products = Product::latest()->get();
+   public function index()
+{
+    // ADMIN: load produk + komentar + user
+    if (auth()->check() && auth()->user()->role === 'admin') {
+        $products = Product::with([
+            'comments.user',
+            'comments.replies'
+        ])->latest()->get();
 
-        if (auth()->check() && auth()->user()->role === 'admin') {
-            return view('admin.products.index', compact('products'));
-        }
-
-        return view('customer.products', compact('products'));
+        return view('admin.products.index', compact('products'));
     }
+
+    // CUSTOMER
+    $products = Product::latest()->get();
+    return view('customer.products', compact('products'));
+}
 
     // ===============================
     // CREATE
