@@ -93,3 +93,11 @@ Route::middleware(['role:customer'])->group(function () {
     Route::get('transactions', [TransactionController::class,'customerTransactions'])
         ->name('customer.transactions');
 });
+
+// ... kode route lainnya ...
+
+/* ================= PROFILE USER ================= */
+Route::middleware(['auth'])->group(function() {
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});

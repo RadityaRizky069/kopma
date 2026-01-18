@@ -25,7 +25,7 @@
     .container-custom {
         max-width: 960px;
         margin: 0 auto;
-        padding: 40px 20px 80px; /* Padding bawah ditambah biar lega */
+        padding: 40px 20px 80px;
     }
 
     /* --- HEADER (TOMBOL KEMBALI) --- */
@@ -64,7 +64,7 @@
         display: flex;
         flex-wrap: wrap;
         box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        margin-bottom: 60px; /* Jarak ke komentar lebih jauh */
+        margin-bottom: 60px;
     }
 
     .product-img-col {
@@ -152,7 +152,7 @@
         box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
     }
 
-    /* --- BAGIAN KOMENTAR (YANG DIPERBAIKI) --- */
+    /* --- BAGIAN KOMENTAR --- */
     .comments-section {
         max-width: 800px;
         margin: 0 auto;
@@ -182,7 +182,7 @@
         font-weight: 600;
     }
 
-    /* Input Komentar Baru - Lebih Clean */
+    /* Input Komentar */
     .comment-form-wrapper {
         display: flex;
         gap: 20px;
@@ -201,6 +201,13 @@
         justify-content: center;
         font-size: 1.1rem;
         flex-shrink: 0;
+        overflow: hidden; /* PENTING BIAR FOTO BULAT */
+    }
+    
+    .user-avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .comment-box {
@@ -246,19 +253,17 @@
         background: black;
     }
 
-    /* List Komentar - Desain Card Terpisah */
+    /* List Komentar */
     .comment-list {
         display: flex;
         flex-direction: column;
-        gap: 24px; /* Jarak antar komentar */
+        gap: 24px;
     }
 
     .comment-card {
         background: white;
-        /* Hapus border jika ingin lebih bersih, pakai shadow halus saja */
-        /* border: 1px solid var(--border); */
         border-radius: 16px;
-        padding: 0; /* Padding diatur di dalam */
+        padding: 0;
         display: flex;
         gap: 16px;
     }
@@ -268,13 +273,20 @@
         height: 42px;
         background: #f1f5f9;
         color: var(--text-gray);
-        border-radius: 12px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
         font-size: 0.9rem;
         flex-shrink: 0;
+        overflow: hidden; /* PENTING BIAR FOTO BULAT */
+    }
+    
+    .comment-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .comment-content {
@@ -339,14 +351,14 @@
 
 <div class="container-custom">
     
-    <!-- 1. TOMBOL KEMBALI -->
+    <!-- 1. HEADER TOMBOL KEMBALI -->
     <div class="header-nav">
         <a href="{{ route('products.index') }}" class="btn-back">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
 
-    <!-- 2. DETAIL PRODUK (GAMBAR & INFO) -->
+    <!-- 2. PRODUCT CARD -->
     <div class="product-main-card">
         <div class="product-img-col">
             @if($product->gambar)
@@ -377,7 +389,7 @@
         </div>
     </div>
 
-    <!-- 3. BAGIAN KOMENTAR (LEBIH RAPI & LEGA) -->
+    <!-- 3. BAGIAN KOMENTAR (SUDAH DIPERBAIKI FOTONYA) -->
     <div class="comments-section">
         
         <div class="section-head">
@@ -385,11 +397,15 @@
             <span class="count-pill">{{ $product->comments->count() }}</span>
         </div>
 
-        <!-- Form Input -->
+        <!-- Form Input Komentar (Tampilkan Foto User Login) -->
         @auth
         <div class="comment-form-wrapper">
             <div class="user-avatar-circle">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                @if(auth()->user()->avatar)
+                    <img src="{{ asset('storage/' . auth()->user()->avatar) }}">
+                @else
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                @endif
             </div>
             <div class="comment-box">
                 <form action="{{ route('comments.store') }}" method="POST">
@@ -406,12 +422,18 @@
         </div>
         @endauth
 
-        <!-- Daftar Komentar -->
+        <!-- Daftar Komentar (Tampilkan Foto User Lain) -->
         <div class="comment-list">
             @forelse($product->comments as $comment)
             <div class="comment-card">
                 <div class="comment-avatar">
-                    {{ strtoupper(substr($comment->user->name, 0, 1)) }}
+                    @if($comment->user->avatar)
+                        {{-- MENAMPILKAN FOTO JIKA ADA --}}
+                        <img src="{{ asset('storage/' . $comment->user->avatar) }}">
+                    @else
+                        {{-- MENAMPILKAN HURUF INISIAL JIKA TIDAK ADA FOTO --}}
+                        {{ strtoupper(substr($comment->user->name, 0, 1)) }}
+                    @endif
                 </div>
                 <div class="comment-content">
                     <div class="comment-header">
@@ -447,7 +469,7 @@
                 </div>
             </div>
             @empty
-            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+            <div class="text-center py-5" style="color: #94a3b8;">
                 <i class="bi bi-chat-quote" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
                 <p>Belum ada ulasan. Jadilah yang pertama berkomentar!</p>
             </div>
