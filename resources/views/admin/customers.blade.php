@@ -27,8 +27,13 @@
                 <tr style="border-bottom: 1px solid var(--border);">
                     <td style="padding: 20px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 35px; height: 35px; background: var(--primary-soft); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            {{-- LOGIC AVATAR DIPERBARUI --}}
+                            <div style="width: 35px; height: 35px; background: var(--primary-soft); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; overflow: hidden;">
+                                @if($user->avatar)
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @else
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                @endif
                             </div>
                             <span style="font-weight: 500;">{{ $user->name }}</span>
                         </div>
@@ -57,12 +62,13 @@
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
-            cancelButtonColor: var(--muted),
+            cancelButtonColor: '#6B7280', // Saya perbaiki variabel warna agar tidak error JS
             confirmButtonText: 'Ya, Hapus!',
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
                 // Tambahkan logika hapus di sini jika diperlukan
+                // window.location.href = '/admin/customers/delete/' + id; // Contoh
                 Swal.fire('Terhapus!', 'Member telah dihapus.', 'success');
             }
         })
