@@ -268,6 +268,15 @@
         gap: 16px;
     }
 
+    /* Avatar Link Wrapper */
+    .avatar-link {
+        text-decoration: none;
+        transition: transform 0.2s;
+    }
+    .avatar-link:hover {
+        transform: scale(1.05);
+    }
+
     .comment-avatar {
         width: 42px;
         height: 42px;
@@ -300,10 +309,26 @@
         margin-bottom: 6px;
     }
 
-    .comment-user {
+    /* --- STYLE NAMA USER YANG BISA DIKLIK --- */
+    .comment-user-link {
         font-weight: 700;
         color: var(--text-dark);
         font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .comment-user-link:hover {
+        color: var(--primary); /* Berubah hijau saat hover */
+    }
+
+    .comment-user-link:hover .comment-user-name {
+        text-decoration: underline; /* Garis bawah saat hover */
+        text-underline-offset: 3px;
     }
 
     .comment-time {
@@ -389,7 +414,7 @@
         </div>
     </div>
 
-    <!-- 3. BAGIAN KOMENTAR (SUDAH DIPERBAIKI FOTONYA) -->
+    <!-- 3. BAGIAN KOMENTAR -->
     <div class="comments-section">
         
         <div class="section-head">
@@ -426,23 +451,28 @@
         <div class="comment-list">
             @forelse($product->comments as $comment)
             <div class="comment-card">
-                <div class="comment-avatar">
-                    @if($comment->user->avatar)
-                        {{-- MENAMPILKAN FOTO JIKA ADA --}}
-                        <img src="{{ asset('storage/' . $comment->user->avatar) }}">
-                    @else
-                        {{-- MENAMPILKAN HURUF INISIAL JIKA TIDAK ADA FOTO --}}
-                        {{ strtoupper(substr($comment->user->name, 0, 1)) }}
-                    @endif
-                </div>
+                
+                {{-- AVATAR KLIK --}}
+                <a href="{{ url('/profile/' . $comment->user->id) }}" class="avatar-link" title="Lihat Profil">
+                    <div class="comment-avatar">
+                        @if($comment->user->avatar)
+                            <img src="{{ asset('storage/' . $comment->user->avatar) }}">
+                        @else
+                            {{ strtoupper(substr($comment->user->name, 0, 1)) }}
+                        @endif
+                    </div>
+                </a>
+
                 <div class="comment-content">
                     <div class="comment-header">
-                        <span class="comment-user">
-                            {{ $comment->user->name }}
+                        {{-- NAMA USER KLIK --}}
+                        <a href="{{ url('/profile/' . $comment->user->id) }}" class="comment-user-link" title="Kunjungi Profil {{ $comment->user->name }}">
+                            <span class="comment-user-name">{{ $comment->user->name }}</span>
                             @if($comment->user->role === 'admin') 
-                                <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.8rem; margin-left: 4px;" title="Admin"></i>
+                                <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.8rem;" title="Admin Terverifikasi"></i>
                             @endif
-                        </span>
+                        </a>
+
                         <span class="comment-time">{{ $comment->created_at->diffForHumans() }}</span>
                     </div>
                     

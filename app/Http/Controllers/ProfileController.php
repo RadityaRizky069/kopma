@@ -54,4 +54,12 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
+
+    public function show($id)
+{
+    // Cari user berdasarkan ID, jika tidak ada tampilkan 404
+    $user = \App\Models\User::findOrFail($id);
+    
+    return view('profile.show', compact('user'));
+}
 }
