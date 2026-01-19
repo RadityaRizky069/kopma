@@ -42,29 +42,30 @@
 
 <div class="container" style="padding-top: 60px; padding-bottom: 80px;">
     
-    {{-- HERO SECTION --}}
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-bottom: 100px;">
-        <div class="hero-content">
-            <span style="background: #dcfce7; color: #15803d; padding: 8px 16px; border-radius: 99px; font-weight: 700; font-size: 13px; display: inline-block; margin-bottom: 20px;">
-                <i class="fa-solid fa-check-circle"></i> Platform Koperasi Digital
-            </span>
-            <h1 style="font-size: 48px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; color: #1e293b;">
-                Belanja di Koperasi <br> Jadi Lebih Mudah
-            </h1>
-            <p style="color: #64748b; font-size: 18px; line-height: 1.6; margin-bottom: 30px; max-width: 480px;">
-                KOPMA menghadirkan pengalaman belanja koperasi mahasiswa yang modern, transparan, dan dapat diakses kapan saja.
-            </p>
-            <a href="{{ route('register') }}" class="btn btn-primary" style="padding: 16px 32px; font-size: 16px; box-shadow: 0 10px 20px rgba(21,128,61,0.2);">
-                Daftar Anggota Sekarang
-            </a>
-        </div>
-        
-        <div class="hero-image" style="background: #f0fdf4; height: 400px; border-radius: 40px; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #15803d; border: 2px dashed #bbf7d0;">
-            <i class="fa-solid fa-mobile-screen" style="font-size: 64px; margin-bottom: 20px;"></i>
-            <span style="font-weight: 700; font-size: 18px;">Preview Aplikasi</span>
-        </div>
+{{-- HERO SECTION --}}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-bottom: 100px;">
+    <div class="hero-content">
+        <span style="background: #dcfce7; color: #15803d; padding: 8px 16px; border-radius: 99px; font-weight: 700; font-size: 13px; display: inline-block; margin-bottom: 20px;">
+            <i class="fa-solid fa-check-circle"></i> Platform Koperasi Digital
+        </span>
+        <h1 style="font-size: 48px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; color: #1e293b;">
+            Belanja di Koperasi <br> Jadi Lebih Mudah
+        </h1>
+        <p style="color: #64748b; font-size: 18px; line-height: 1.6; margin-bottom: 30px; max-width: 480px;">
+            KOPMA menghadirkan pengalaman belanja koperasi mahasiswa yang modern, transparan, dan dapat diakses kapan saja.
+        </p>
+        <a href="{{ route('register') }}" class="btn btn-primary" style="padding: 16px 32px; font-size: 16px; box-shadow: 0 10px 20px rgba(21,128,61,0.2);">
+            Daftar Anggota Sekarang
+        </a>
     </div>
-
+    
+    {{-- BAGIAN YANG DIGANTI: Menggunakan <img> asli --}}
+    <div class="hero-image" style="height: 400px; border-radius: 40px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+        <img src="https://i.pinimg.com/1200x/00/c8/7b/00c87b2607a8d8100fbd1f953ff9256e.jpg" 
+             alt="Preview Aplikasi" 
+             style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+</div>
     {{-- PRODUK POPULER SECTION --}}
     <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 40px;">
         <div class="hero-content" style="animation-delay: 0.4s;"> {{-- Delay sedikit biar muncul setelah hero --}}
